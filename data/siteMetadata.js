@@ -3,7 +3,7 @@ const siteMetadata = {
   title: 'Minh codes his life',
   author: 'Ngoc-Minh Ta',
   headerTitle: 'Minh codes his life',
-  description: 'A blog for everything about my life and my works',
+  description: 'A blog for everything about my life, my works and knowledge-sharing',
   language: 'vi-VN',
   theme: 'system', // system, dark or light
   siteUrl: 'https://minhcodeshislife.vercel.app',
