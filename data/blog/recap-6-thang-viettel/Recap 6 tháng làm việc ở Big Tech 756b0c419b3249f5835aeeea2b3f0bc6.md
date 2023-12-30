@@ -1,0 +1,70 @@
+---
+title: 'Recap 6 tháng làm việc ở Big Tech'
+date: '2024-01-01'
+lastmod: '2024-01-01'
+tags: ['daily', 'working']
+draft: false
+summary: 'Một chút chia sẻ về thời gian 6 tháng qua làm việc tại Ban CNTT Tập đoàn Viettel'
+images: ['Recap%206%20tha%CC%81ng%20la%CC%80m%20vie%CC%A3%CC%82c%20o%CC%9B%CC%89%20Big%20Tech%20756b0c419b3249f5835aeeea2b3f0bc6/Untitled%201.png']
+---
+
+<aside>
+💡 Đây là bài đầu tiên trên blog của mình, cũng là recap cho một bước đi đầu tiên của mình trong sự nghiệp. Mình sẽ chia sẻ ở đây một số câu chuyện xoay quanh việc một đứa sinh viên năm 2 bắt đầu đi làm ở big tech với 1001 sự bỡ ngỡ và rồi gặp được những con người siêu cute.
+
+</aside>
+
+Hôm nay là thứ Hai, ngày 01 tháng 01 năm 2024, một khởi đầu mới thật hoàn chỉnh. Blog này mình cũng tạo được nửa tháng rồi, và đây sẽ là một bài viết đầu tiên trên blog, và hứa rằng blog sẽ update thường xuyên về cả kiến thức công nghệ lẫn những thứ xung quanh mình.
+
+Để bắt đầu, bắt đầu cho cả blog và cho bài viết này, có lẽ là lí do để mình bắt đầu viết. Có khá nhiều lí do và mục đích xoay quanh blog này, nhưng hơn hết, mình đã nhận được rất nhiều sự giúp đỡ, chia sẻ từ các thầy, các anh, những người đi trước. Blog này sinh ra như một cách để mình lan toả những điều mình học được cho nhiều người hơn, hay văn hoa một chút, “cho đi nghĩa là còn mãi”.
+
+Dài dòng vậy thôi, mình sẽ đi vào câu chuyện chính nhé.
+
+## Khởi đầu câu chuyện: Apply vào Viettel.
+
+Mình apply vào Viettel vào một ngày sau Tết âm lịch. Một ngày mà mình rảnh quá mình lướt và thấy Viettel Digital Talent mở đơn, dành cho SV năm cuối và người đi làm dưới 2 năm. Nhưng bằng một thế lực nào đó, mình quyết định nộp CV cho vui và bỏ quên luôn việc mình đã apply vào Viettel.
+
+![Viettel Digital Talent 2023 - Điểm khởi đầu cho câu chuyện này](Recap%206%20tha%CC%81ng%20la%CC%80m%20vie%CC%A3%CC%82c%20o%CC%9B%CC%89%20Big%20Tech%20756b0c419b3249f5835aeeea2b3f0bc6/Untitled.png)
+
+Viettel Digital Talent 2023 - Điểm khởi đầu cho câu chuyện này
+
+Bẵng đi hơn một tháng, mình nhận được email báo vượt qua vòng đơn và mời đi thi chuyên môn sau 2 ngày. Hai ngày trời với 1001 kiến thức còn chẳng biết đề thi có gì và thi như nào, mình quyết định không ôn gì cả và đi thi với một tâm hồn thật đẹp :D Khi thi xong, nhìn số điểm của mình mình đã chắc rằng mình trượt, nhưng không, hơn 1 tuần sau mình nhận được mail đi phỏng vấn, và lần này chỉ trước có hơn 1 ngày.
+
+Phỏng vấn mình là anh Thanh, lúc đi vào nhìn mặt ảnh nghiêm túc dễ sợ. Mình trả lời đúng hay sai thì anh ý chỉ có gật và mặt không cảm xúc gì cả. Lần này chắc chắn tạch part 2 nhưng cuối cùng thì mình vẫn đậu :)))
+
+## Thời gian thực tập
+
+Thực tập giai đoạn 1 của Viettel Digital Talent chỉ bao gồm việc học những kiến thức mới. Lần đầu trong đời mình được nghe đến Dockerfile, Spark, Hadoop… và cuối cùng thi hackathon và bảo vệ project.
+
+Hôm thi hackathon thì cực chill. Các anh cho bọn mình thi online, không trông thi, 4 bài trong 3 tiếng. Buồn cười là khi thi ai cũng nghĩ mình cỡ 7/10 trở lên, nhưng khi báo điểm thì cao nhất là 6 điểm :v Bảo vệ project thì cũng bình thường như trên lớp, và mình vẫn may mắn lay lắt sống sót qua giai đoạn 1.
+
+Giai đoạn 2 thì làm việc trực tiếp tại đơn vị. Lần này mình làm ở Ban Công nghệ Thông tin Tập đoàn. Ngày đầu lên công ty, anh Thanh cho mình chọn đề tài, và mình lựa chọn làm về Large language model mặc dù trước đó mình chẳng biết gì về nó.
+
+![Buổi bảo vệ project giai đoạn 2 của mình](Recap%206%20tha%CC%81ng%20la%CC%80m%20vie%CC%A3%CC%82c%20o%CC%9B%CC%89%20Big%20Tech%20756b0c419b3249f5835aeeea2b3f0bc6/Untitled%201.png)
+
+Buổi bảo vệ project giai đoạn 2 của mình
+
+Trong cả thời gian 3 tháng này, mình tự mò từ những thứ đơn giản nhất, Transformer, LoRA, QLoRA,… và cũng phải đi hỏi rất nhiều. Mình cũng hỏi anh Bá Ngọc GDE rất nhiều, và anh cũng rất nhiệt tình hỗ trợ mình về mọi thứ cả ngày lẫn đêm. Nhưng đặc biệt là, để hỗ trợ cho mình, anh Thanh đã nhờ anh NamNV78 (giảng viên TLU) và TS. Hồ Phạm Minh Nhật để hướng dẫn thêm cho mình về cách làm và các kĩ thuật mới của LLM.
+
+Đến hôm bảo vệ đề tài, hôm này thực sự căng thẳng vì mình sẽ phải bảo vệ một lĩnh vực mới, một cái topic mình còn chưa hiểu quá nhiều về nó, và sản phẩm cũng chưa quá hoàn thiện. Và rồi, điều gì đến cũng đến :)) mình demo hỏi bằng tiếng Việt và LLM trả lời bằng tiếng Anh. Quê thực sự luôn í =)))
+
+## Đi làm chính thức
+
+Sau giai đoạn 2 thì mình cũng được offer làm việc chính thức, và một số sự trầm cảm bắt đầu xuất hiện ở đây. Mình vẫn làm tiếp về LLM, nhưng phải tích hợp vào Data Lakehouse, và phải triển khai một bộ thư viện sử dụng LLM để hỗ trợ quản trị và truy vấn dữ liệu.
+
+Mình bắt đầu phải làm quen với 1001 thứ mới lạ như Kubernetes, ElasticSearch, SparkAI,… và bắt đầu loạn trong những thứ mới. Vừa train model, vừa đi code SDK, vừa tìm hiểu những thứ mới liên quan. Rõ ràng, bug sml, bug ngập mặt và đôi lúc mình còn chả hiểu mình đang làm gì :)))
+
+Trauma thì vậy chứ, về môi trường làm việc thì rất okela. Cây xanh rất nhiều, không gian cũng rộng rãi thoải mái (giải Bạc kiến trúc quốc gia cơ mà hehe). Mọi người trong phòng mình đều work hard but play harder :)) nên cân bằng công việc - cuộc sống khá ổn.
+
+![Một góc không gian làm việc ngày gần Tết ở Ban CNTT](Recap%206%20tha%CC%81ng%20la%CC%80m%20vie%CC%A3%CC%82c%20o%CC%9B%CC%89%20Big%20Tech%20756b0c419b3249f5835aeeea2b3f0bc6/Untitled%202.png)
+
+Một góc không gian làm việc ngày gần Tết ở Ban CNTT
+
+Và trong quá trình vật lộn với những điều mới lạ đấy thì mình nhận được sự giúp đỡ rất lớn từ các anh trong phòng về triển khai, hệ thống,… Nhân đây em cũng cảm ơn anh HoàngPH8, anh QuânVĐ4, anh SơnKC, anh KhánhTH6, các anh chị trong phòng và đặc biệt là anh ThanhNC221 đã hỗ trợ em rất nhiều.
+
+![Một buổi đi ăn ở phòng mình dịp cuối năm và sinh nhật anh SơnKC](Recap%206%20tha%CC%81ng%20la%CC%80m%20vie%CC%A3%CC%82c%20o%CC%9B%CC%89%20Big%20Tech%20756b0c419b3249f5835aeeea2b3f0bc6/Untitled%203.png)
+
+Một buổi đi ăn ở phòng mình dịp cuối năm và sinh nhật anh SơnKC
+
+Bài này đến đây có lẽ cũng dài quá rồi, nhưng câu chuyện gần một năm trời cũng quá dài để có thể viết trọn vẹn trong một bài post. Cảm ơn mọi người đã ủng hộ mình và kiên nhẫn đọc tới đây. Mong mọi người sẽ tiếp tục ủng hộ blog này nha.
+
+Happy new year 2024!
