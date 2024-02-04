@@ -11,9 +11,9 @@ images: ['/static/images/fundamentals-of-transformer/transformer.jpg']
 > 💡 Trong blog này, mình sẽ trình bày chi tiết cách mô hình Transformer hoạt động, cũng như là cách cài đặt mô hình chi tiết cho những bạn mới có kiến thức cơ bản về deep learning như CNN hoặc LSTM cũng có thể hiểu được.
 
 Sự nổi tiếng của mô hình Transformer thì không cần phải bàn cãi, vì nó chính là nền tảng của rất nhiều mô hình khác mà nổi tiếng nhất là BERT (Bidirectional Encoder Representations from Transformers) một mô hình dùng để học biểu diễn của các từ tốt nhất hiện tại và đã tạo ra một bước ngoặt lớn cho động đồng NLP trong năm 2019. Và chính Google cũng đã áp dụng BERT trong cỗ máy tìm kiếm của họ. Để hiểu BERT, các bạn cần phải nắm rõ về mô hình Transformer.
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/bert.jpg" />
-</div>
+
+![](/static/images/fundamentals-of-transformer/bert.jpg)
+
 Ý tưởng chủ đạo của Transformer vẫn là áp dụng cơ thể Attention, những ở mức phức tạp hơn và thật sự là thú vị hơn so với cách được đề xuất trước đó trong một [bài báo](https://arxiv.org/abs/1508.04025) của anh Lương Minh Thắng, một người Việt rất nổi tiếng trong cộng đồng Deep Learning. 
 
 # Tổng Quan Mô Hình
@@ -23,21 +23,16 @@ Giống như những mô hình dịch máy khác, kiến trúc tổng quan của
 
 Trong ví dụ ở dưới, encoder của mô hình transformer nhận một câu tiếng anh, và encode thành một vector biểu diễn ngữ nghĩa của câu <i>little sun</i>, sau đó mô hình decoder nhận vector biểu diễn này, và dịch nó thành câu tiếng việt <i>mặt trời bé nhỏ</i>
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/overview.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/overview.jpg)
 
 Một trong những ưu điểm của transformer là mô hình này có khả năng xử lý song song cho các từ. Như các bạn thấy, Encoders của mô hình transformer là một dạng feedforward neural nets, bao gồm nhiều encoder layer khác, mỗi encoder layer này xử lý đồng thời các từ. Trong khi đó, với mô hình LSTM, thì các từ phải được xử lý tuần tự. Ngoài ra, mô hình Transformer còn xử lý câu đầu vào theo 2 hướng mà không cần phải stack thêm một hình LSTM nữa như trong kiến trúc Bidirectional LSTM. 
 
-<div class="img-div-any-width" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/overview2.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/overview2.jpg)
+
 
 Một cái nhìn vừa tổng quát và chi tiết sẽ giúp ích cho các bạn. Mình sẽ đi vào chi tiết một số phần cực kì quan trọng như sinusoidal position encoding, multi head attention của encoder, còn của decoder thì các bạn thấy được kiến trúc rất giống với của encoder, do đó mình sẽ chỉ đi nhanh qua mà thôi. 
 
-<div class="img-div-any-width" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/overview3.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/overview3.jpg)
 
 # Embedding Layer with Position Encoding
 Trước khi đi vào mô hình encoder, chúng ta sẽ tìm hiểu cơ chế rất thú vị là Position Encoding dùng để đưa thông tin về vị trí của các từ vào mô hình transformer. 
@@ -49,50 +44,35 @@ Biểu diễn vị trí các từ bằng chuỗi các số liên tục từ 0,1,
 ## Phương pháp đề xuất sinusoidal position encoding
 Phương pháp của tác giả đề xuất không gặp những hạn chế mà chúng ta vừa nêu. Vị trí của các từ được mã hóa bằng một vector có kích thước bằng word embedding và được cộng trực tiếp vào word embedding. 
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/embedding.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/embedding.jpg)
 
 Cụ thể, tại vị trí chẵn, tác giả sử dụng hàm sin, và với vị trí lẽ tác giả sử dụng hàm cos để tính giá trị tại chiều đó.
 
-<div class='row'>
-<span class="col-sm-12 text-center" style="font-size:120%">$$p_t^i = f(t)^i = 
+$$p_t^i = f(t)^i = 
 \begin{cases}
    sin(w_{k}*t) &\text{if } i=2k \\
    cos(w_{k}*t) &\text{if } i=2k+1
-\end{cases}$$</span>
-</div>
+\end{cases}$$
 
-Trong đó 
-<div class='row'>
-<span class="col-sm-12 text-center" style="font-size:120%">$$w_{k} = \frac{1}{10000^{2k/d}}$$</span>
-</div>
+Trong đó, $w_{k} = \dfrac{1}{10000^{2k/d}}$
 
 Trong hình dưới này, mình minh họa cho cách tính position encoding của tác giả. Giả sử chúng ta có word embedding có 6 chiều, thì position encoding cũng có tương ứng là 6 chiều. Mỗi dòng tương ứng với một từ. Giá trị của các vector tại mỗi vị trí được tính toán theo công thức ở hình dưới. 
 
-<div class="img-div-any-width" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/pe.png" />
-</div>
+![](/static/images/fundamentals-of-transformer/pe.png)
 
 Lúc này một số bạn sẽ thắc mắc tại sao với cách biểu diễn vị trí như tác giả đề xuất lại có thể mã hóa thông tin vị trí của từ? Hãy tưởng tượng bạn có các số từ 0-15. Các bạn có thể thấy rằng bit ngoài cùng bên phải thay đổi nhanh nhất mỗi 1 số, và sau đó là bit bên phải thứ 2, thay đổi mỗi 2 số, tương tự cho các bit khác. 
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/pe_intuition.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/pe_intuition.jpg)
 
 Trong công thức của tác giả đề xuất, các bạn cũng thấy rằng, hàm sin và cos có dạng đồ thị tần số và tần số này giảm dần ở các chiều lớn dần. Các bạn xem hình dưới, ở chiều 0, giá trị thay đổi liên tục tương ứng với màu sắc thay đổi liên tục, và tần số thay đổi này giảm dần ở các chiều lớn hơn. 
 
-<div class="img-div-any-width" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/pe_heatmap.png" />
-</div>
+![](/static/images/fundamentals-of-transformer/pe_heatmap.png)
 
 Nên chúng ta có thể cảm nhận được việc biểu diễn của tác giả khá tương tự như cách biểu diễn các số nguyên trong hệ nhị phân, cho nên chúng ta có thể biểu diễn được vị trí các từ theo cách như vậy.
 
 Chúng ta cũng có thể xem ma trận khoảng cách của các vector biểu diễn vị trí như hình dưới. Rõ ràng, các vector biểu diễn thể hiện được tính chất khoảng cách giữa 2 từ. 2 từ cách càng xa nhau thì khoảng cách càng lớn hơn.
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/pe_distance.png" />
-</div>
+![](/static/images/fundamentals-of-transformer/pe_distance.png)
 
 Ngoài ra, một tính chất của phương pháp tác giả đề xuất là nó cho phép mô hình dễ dàng học được mối quan hệ tương đối giữa các từ. Cụ thể, biểu diễn vị trí của từ t + offset có thể chuyển thành biểu diễn vị trí của từ t bằng một phép biến đổi tuyến tính dựa trên ma trận phép quay. 
 
@@ -103,18 +83,14 @@ Encoder của mô hình transformer có thể bao gồm nhiều encoder layer t�
 
 Trong 2 thành phần chính này, các bạn sẽ hứng thú nhiều hơn về multi-head attention vì đó là một layer mới được giới thiệu trong bài báo này, và chính nó tạo nên sự khác biệt giữa mô hình LSTM và mô hình Transformer mà chúng ta đang tìm hiểu. 
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/encoder.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/encoder.jpg)
 
 Encoder đầu tiên sẽ nhận ma trận biểu diễn của các từ đã được cộng với thông tin vị trí thông qua positional encoding. Sau đó, ma trận này sẽ được xử lý bởi Multi Head Attention. Multi Head Attention thật chất là self-attention, nhưng mà để mô hình có thể có chú ý nhiều pattern khác nhau, tác giả đơn giản là sử dụng nhiều self-attention.
 
 ## Self Attention Layer
 Self Attention cho phép mô hình khi mã hóa một từ có thể sử dụng thông tin của những từ liên quan tới nó. Ví dụ khi từ **nó** được mã hóa, nó sẽ chú ý vào các từ liên quan như là **mặt trời**. Cơ chế self attention này có ý nghĩa tương tự như cơ chế attention mình đã chia sẻ ở [bài trước](https://pbcquoc.github.io/attention/) và những công thức toán học cũng tương ứng với nhau. 
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/self_attention.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/self_attention.jpg)
 
 Bạn có thể tưởng tượng cơ chế self attention giống như cơ chế tìm kiếm. Với một từ cho trước, cơ chế này sẽ cho phép mô hình tìm kiếm trong cách từ còn lại, từ nào "giống" để  sau đó thông tin sẽ được mã hóa dựa trên tất cả các từ trên. 
 
@@ -125,26 +101,20 @@ Bạn có thể tưởng tượng cơ chế self attention giống như cơ ch�
 
 Để tính tương quan, chúng ta đơn giản chỉ cần tính tích vô hướng dựa các vector query và key. Sau đó dùng hàm softmax để chuẩn hóa chỉ số tương quan trong đoạn 0-1, và cuối cùng, tính trung bình cộng có trọng số giữa các vector values sử dụng chỉ số tương quan mới tính được. Quá dễ !!! 
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/self_attention_2.png" />
-</div>
+![](/static/images/fundamentals-of-transformer/self_attention_2.png)
 
 Cụ thể hơn, quá trình tính toán attention vector có thể được tóm tắt làm 3 bước như sau:
 * Bước 1: Tính ma trận query, key, value bằng cách khởi tạo 3 ma trận trọng số query, key, vector. Sau đó nhân input với các ma trận trọng số này để tạo thành 3 ma trận tương ứng. 
 * Bước 2: Tính attention weights. Nhân 2 ma trận key, query vừa được tính ở trên với nhau để với ý nghĩa là so sánh giữa câu query và key để học mối tương quan. Sau đó thì chuẩn hóa về đoạn [0-1] bằng hàm softmax. 1 có nghĩa là câu query giống với key, 0 có nghĩa là không giống.
 * Bước 3: Tính output. Nhân attention weights với ma trận value. Điều này có nghĩa là chúng ta biểu diễn một từ bằng trung bình có trọng số (attention weights) của ma trận  value.
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/attention_vector.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/attention_vector.jpg)
 
 
 ## Multi Head Attention
 Chúng ta muốn mô hình có thể  học nhiều kiểu mối quan hệ giữa các từ với nhau. Với mỗi self-attention, chúng ta học được một kiểu pattern, do đó để có thể mở rộng khả năng này, chúng ta đơn giản là thêm nhiều self-attention. Tức là chúng ta cần nhiều ma trận query, key, value mà thôi. Giờ đây ma trận trọng số key, query, value sẽ có thêm 1 chiều depth nữa. 
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/multi_head_attention.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/multi_head_attention.jpg)
 
 Multi head attention cho phép mô hình chú ý đến đồng thời những pattern dễ quan sát được như sau. 
 * Chú ý đến từ kế trước của một từ 
@@ -157,9 +127,7 @@ Trong kiến trúc của mô hình transformer, residuals connection và normali
 # Decoder
 Decoder thực hiện chức năng giải mã vector của câu nguồn thành câu đích, do đó decoder sẽ nhận thông tin từ encoder là 2 vector key và value. Kiến trúc của decoder rất giống với encoder, ngoại trừ có thêm một multi head attention nằm ở giữa dùng để học mối liên quan giữ từ đang được dịch với các từ được ở câu nguồn. 
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/decoder.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/decoder.jpg)
 
 ## Masked Multi Head Attention
 Masked Multi Head Attention tất nhiên là multi head attention mà chúng ta đã nói đến ở trên, có chức năng dùng để encode các từ câu câu đích trong quá trình dịch, tuy nhiên, lúc cài đặt chúng ta cần lưu ý rằng phải che đi các từ ở tương lai chưa được mô hình dịch đến, để làm việc này thì đơn giản là chúng ta chỉ cần nhân với một vector chứa các giá trị 0,1. 
@@ -177,30 +145,18 @@ Loss function thì tất nhiên là cross-entropy mà thôi, giống như ở c�
 ### Optimizer
 Để huấn luyện mô hình transformer, các bạn vẫn sử dụng Adam, tuy nhiên, learning rate cần phải được điều chỉnh trong suốt quá trình học theo công thức sau
 
-<div class='row'>
-<span class="col-sm-12 text-center" style="font-size:120%">$$lr\_rate=d^{-0.5}_{d\_model}*min(step\_num^{-0.5}, step\_num*warmup\_steps^{-1.5}) $$</span>
-</div>
+$$lr\_rate=d^{-0.5}_{d\_model}*min(step\_num^{-0.5}, step\_num*warmup\_steps^{-1.5}) $$
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/opt.png" />
-</div>
+![](/static/images/fundamentals-of-transformer/opt.png)
 
 Cơ bản thì learning rate sẽ tăng dần trong các lần cập nhật đầu tiên, các bước này được gọi là warm up step, lúc này mô hình  sẽ 'chạy' tẹt ga. Sau đó learning rate lại giảm dần, để mô hình hội tụ. 
 
 ### Label Smoothing
 Với mô hình nhiều triệu tham số của transformer, thì việt overfit là chuyện dễ dàng xảy ra. Để hạn chế hiện tượng overfit, các bạn có thể sử dụng kỹ thuật label smoothing. Về cơ bản thì ý tưởng của kỹ thuật này khá đơn giản, chúng ta sẽ phạt mô hình khi nó quá tự tin vào việc dự đoán của mình. Thay vì mã hóa nhãn là một one-hot vector, các bạn sẽ thay đổi nhãn này một chút bằng cách phân bố một tí xác suất vào các trường hợp còn lại. 
 
-<div class="img-div" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/label_smoothing.jpg" />
-</div>
+![](/static/images/fundamentals-of-transformer/label_smoothing.jpg)
 
 Giờ thì các bạn sẽ an tâm khi có thể để số epoch lớn mà không lo rằng mô hình sẽ overfit nặng nề. 
-
-# Implementation
-Với mình lý thuyết mà không có thực hành có nghĩa là vẫn chưa hiểu rõ được lý thuyết đó. Cho nên mình đã cài đặt và mô tả chi tiết các bước làm trong notebook [tại đây](https://github.com/pbcquoc/transformer/blob/master/transformer.ipynb). 
-
-## Dataset song ngữ anh-việt
-Đồng thời mình cũng cung cấp bộ dữ liệu song ngữ được thu thập trên TED bao gồm hơn 600k câu song ngữ anh-việt [tại đây](https://drive.google.com/file/d/1Fuo_ALIFKlUvOPbK5rUA5OfAS2wKn_95/view?usp=sharing). Với bộ dữ liệu mình hy vọng các bạn sẽ không gặp phải khó khăn khi thử nghiệm những kiến thức mới. 
 
 # Visualization
 Visualize trong số của các mô hình sử dụng cơ chế attention thực sự rất thú vị. Trong mô hình transformer, chúng ta visualize tại encoder và tại decoder. 
@@ -209,9 +165,7 @@ Các bạn có thể visualize đồng thời tại các heads của multi-head 
 ## Encoder Visualize
 Các bạn có thể dùng heatmap để visualize giá trị attention, sẽ cho chúng ta biết khi encode một câu mô hình chú ý từ gì ở lân cận
 
-<div class="img-div-any-width" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/encoder_visualize.png" />
-</div>
+![](/static/images/fundamentals-of-transformer/encoder_visualize.png)
 
 Ở đây mình visualize giá trị attention của encoder layer số 2 và 4, tại các head 0,1,2,3 (trong cài đặt các bạn có tổng cộng 6 encoder layer và 8 heads nhé). Nhìn vào các heatmaps ở trên, các bạn có thể thấy được rằng khi encode một từ mô hình sẽ nhìn vào các từ liên quan xung quanh. Ví dụ từ **family** có thể  được mã hóa bằng 2 từ liên quan như **my** và **family**. 
 
@@ -220,9 +174,7 @@ Các bạn có thể dùng heatmap để visualize giá trị attention, sẽ ch
 * self attention: giá trị attention khi mô hình decoder mã hóa câu đích lúc dịch
 * src attention: giá trị attention khi mô hình decoder sử dụng câu src lúc dịch
 
-<div class="img-div-any-width" markdown="0">
-    <img src="/static/images/fundamentals-of-transformer/decoder_visualize.png" />
-</div>
+![](/static/images/fundamentals-of-transformer/decoder_visualize.png)
 
 Ở ví dụ này mình visualize decoder layer số 2, tại 4 heads 0,1,2,3. Các bạn có thể quan sát được khi encode từ **đình** mô hình sẽ nhìn vào các từ kế cạnh là **gia** và **tôi**, (và còn nhiều kiểu pattern khác nữa nhé). Còn khi dự đoán từ **tôi** mô hình sẽ nhìn vào từ **my**.
 
