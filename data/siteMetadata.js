@@ -1,13 +1,13 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'Minh codes his life',
+  title: 'Ngoc-Minh Ta blog',
   author: 'Ngoc-Minh Ta',
   headerTitle: 'Minh codes his life',
   description: 'A blog for everything about my life, my works and knowledge-sharing',
   language: 'vi-VN',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://minhcodeshislife.vercel.app',
-  siteRepo: 'https://github.com/ngocminhta/blog-vercel',
+  siteUrl: 'https://blog.ngocminhta.id.vn',
+  siteRepo: 'https://github.com/ngocminhta/minhcodeshislife',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',
   email: 'ngocminhta.nmt@gmail.com',
