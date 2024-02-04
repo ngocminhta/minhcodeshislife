@@ -48,13 +48,15 @@ Phương pháp của tác giả đề xuất không gặp những hạn chế m�
 
 Cụ thể, tại vị trí chẵn, tác giả sử dụng hàm sin, và với vị trí lẽ tác giả sử dụng hàm cos để tính giá trị tại chiều đó.
 
-$$p_t^i = f(t)^i = 
+$$ p_t^i = f(t)^i = 
 \begin{cases}
    sin(w_{k}*t) &\text{if } i=2k \\
    cos(w_{k}*t) &\text{if } i=2k+1
-\end{cases}$$
+\end{cases} $$
 
-Trong đó, $w_{k} = \dfrac{1}{10000^{2k/d}}$
+Trong đó,
+
+$$w_{k} = \dfrac{1}{10000^{2k/d}}$$
 
 Trong hình dưới này, mình minh họa cho cách tính position encoding của tác giả. Giả sử chúng ta có word embedding có 6 chiều, thì position encoding cũng có tương ứng là 6 chiều. Mỗi dòng tương ứng với một từ. Giá trị của các vector tại mỗi vị trí được tính toán theo công thức ở hình dưới. 
 
