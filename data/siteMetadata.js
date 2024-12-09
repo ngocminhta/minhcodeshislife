@@ -6,8 +6,8 @@ const siteMetadata = {
   description: 'A blog for everything about my life, my works and knowledge-sharing',
   language: 'vi-VN',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://blog.ngocminhta.id.vn',
-  siteRepo: 'https://github.com/ngocminhta/minhcodeshislife',
+  siteUrl: 'https://blog.tnminh.com',
+  siteRepo: 'https://github.com/ngocminhta/',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',
   email: 'ngocminhta.nmt@gmail.com',
