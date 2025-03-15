@@ -10,7 +10,7 @@ const siteMetadata = {
   siteRepo: 'https://github.com/ngocminhta/',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',
-  email: 'ngocminhta.nmt@gmail.com',
+  email: 'minh@tnminh.com',
   github: 'https://github.com/ngocminhta',
   facebook: 'https://facebook.com/NgocMinhTa.NMT',
   linkedin: 'https://www.linkedin.com/in/ngocminh-ta/',
