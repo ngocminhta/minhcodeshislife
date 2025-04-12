@@ -1,7 +1,7 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'Ngoc-Minh Ta blog',
-  author: 'Ngoc-Minh Ta',
+  title: 'Minh codes his life',
+  author: 'Minh N. Ta',
   headerTitle: 'Minh codes his life',
   description: 'A blog for everything about my life, my works and knowledge-sharing',
   language: 'vi-VN',
