@@ -160,8 +160,7 @@ inputs
 This outputs a dictionary that contains the IDs of the input:
 
 ```
-{'input_ids': tensor([[49406, 320, 6829, 1629, 530, 518, 2583,
-49407]]), 'attention_mask': tensor([[1, 1, 1, 1, 1, 1, 1, 1]])}
+{'input_ids': tensor([[49406, 320, 6829, 1629, 530, 518, 2583, 49407]]), 'attention_mask': tensor([[1, 1, 1, 1, 1, 1, 1, 1]])}
 ```
 
 To see what those IDs represent, we can convert them to tokens using the aptly named convert_ids_to_tokens function:
@@ -202,9 +201,7 @@ Before we can create our image embedding, like the text embedding, we will need 
 
 ```python
 # Preprocess image
-processed_image = clip_processor(
-text= None , images=image, return_tensors="pt"
-)["pixel_values"]
+processed_image = clip_processor(text=None, images=image, return_tensors="pt")["pixel_values"]
 processed_image.shape
 ```
 
@@ -223,7 +220,7 @@ import matplotlib.pyplot as plt
 
 # Prepare image for visualization
 img = processed_image.squeeze( 0 )
-img = img.permute(*torch.arange(img.ndim - 1 , - 1 , - 1 ))
+img = img.permute(*torch.arange(img.ndim - 1, -1, -1 ))
 img = np.einsum("ijk->jik", img)
 
 # Visualize preprocessed image
@@ -294,9 +291,7 @@ image_embeddings = model.encode(images)
 text_embeddings = model.encode(captions)
 
 #Compute cosine similarities
-sim_matrix = util.cos_sim(
-image_embeddings, text_embeddings
-)
+sim_matrix = util.cos_sim(image_embeddings, text_embeddings)
 ```
 
 # Making Text Generation Models Multimodal
@@ -349,19 +344,15 @@ from transformers import AutoProcessor, Blip2ForConditionalGeneration
 import torch
 
 # Load processor and main model
-blip_processor = AutoProcessor.from_pretrained("Salesforce/blip2-
-opt-2.7b")
-model = Blip2ForConditionalGeneration.from_pretrained(
-"Salesforce/blip2-opt-2.7b",
-torch_dtype=torch.float16
-)
+blip_processor = AutoProcessor.from_pretrained("Salesforce/blip2-opt-2.7b")
+model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b", torch_dtype=torch.float16)
 
 # Send the model to GPU to speed up inference
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 ```
 
-> **TIP:** Using `model.vision_model` and `model.language_model`, we can see which
+**TIP:** Using `model.vision_model` and `model.language_model`, we can see which
 ViT and generative model are used, respectively, in the BLIP-2 model we loaded.
 
 
@@ -384,8 +375,7 @@ The image has 520 × 492 pixels, which is generally an unusual format. So let’
 
 ```python
 # Preprocess the image
-inputs = blip_processor(image, return_tensors="pt").to(device,
-torch.float16)
+inputs = blip_processor(image, return_tensors="pt").to(device, torch.float16)
 inputs["pixel_values"].shape
 ```
 
@@ -439,8 +429,7 @@ tokens
 This gives us the following tokens:
 
 ```
-['</s>', 'Her', 'Ġvocal', 'ization', 'Ġwas', 'Ġremarkably',
-'Ġmel', 'odic']
+['</s>', 'Her', 'Ġvocal', 'ization', 'Ġwas', 'Ġremarkably', 'Ġmel', 'odic']
 ```
 
 When we inspect the tokens, you might notice a strange symbol at the beginning of some tokens, namely, the Ġ symbol. This is actually supposed to be a space. However, an internal function takes characters in certain code points and moves them up by 256 to make them printable. As a result, the space (code point 32) becomes Ġ (code point 288).
@@ -456,8 +445,7 @@ tokens
 This gives us a nicer output:
 
 ```
-['</s>', 'Her', '_vocal', 'ization', '_was', '_remarkably',
-'_mel', 'odic']
+['</s>', 'Her', '_vocal', 'ization', '_was', '_remarkably', '_mel', 'odic']
 ```
 
 The output shows that the underscore indicates the beginning of a word. That way, words that are made up of multiple tokens can be recognized.
@@ -471,8 +459,7 @@ The most straightforward usage of a model like BLIP-2 is to create captions of i
 image = Image.open(urlopen(car_path)).convert("RGB")
 
 # Convert an image into inputs and preprocess it
-inputs = blip_processor(image, return_tensors="pt").to(device,
-torch.float16)
+inputs = blip_processor(image, return_tensors="pt").to(device, torch.float16)
 image
 ```
 
@@ -485,10 +472,8 @@ The next step is converting the image into token IDs using the BLIP-2 model. Aft
 generated_ids = model.generate(**inputs, max_new_tokens= 20 )
 
 # Generate text from the image ids
-generated_text = blip_processor.batch_decode(
-generated_ids, skip_special_tokens= True
-)
-generated_text = generated_text[ 0 ].strip()
+generated_text = blip_processor.batch_decode(generated_ids, skip_special_tokens= True)
+generated_text = generated_text[0].strip()
 generated_text
 ```
 
@@ -507,8 +492,7 @@ Let’s take the image illustrated in Figure 21 and use that as our input:
 
 ```python
 # Load Rorschach image
-url =
-"https://upload.wikimedia.org/wikipedia/commons/7/70/Rorschach_bl
+url = "https://upload.wikimedia.org/wikipedia/commons/7/70/Rorschach_bl
 ot_01.jpg"
 image = Image.open(urlopen(url)).convert("RGB")
 
@@ -516,9 +500,7 @@ image = Image.open(urlopen(url)).convert("RGB")
 inputs = blip_processor(image, return_tensors="pt").to(device,
 torch.float16)
 generated_ids = model.generate(**inputs, max_new_tokens= 20 )
-generated_text = blip_processor.batch_decode(
-generated_ids, skip_special_tokens= True
-)
+generated_text = blip_processor.batch_decode(generated_ids, skip_special_tokens= True)
 generated_text = generated_text[ 0 ].strip()
 generated_text
 ```
@@ -553,9 +535,7 @@ return_tensors="pt").to(device, torch.float16)
 
 # Generate text
 generated_ids = model.generate(**inputs, max_new_tokens= 30 )
-generated_text = blip_processor.batch_decode(
-generated_ids, skip_special_tokens= True
-)
+generated_text = blip_processor.batch_decode(generated_ids, skip_special_tokens= True)
 generated_text = generated_text[ 0 ].strip()
 generated_text
 ```
@@ -576,15 +556,16 @@ prompt = "Question: Write down what you see in this picture. Answer: A sports ca
 inputs = blip_processor(image, text=prompt,
 return_tensors="pt").to(device, torch.float16)
 generated_ids = model.generate(**inputs, max_new_tokens= 30 )
-generated_text = blip_processor.batch_decode(
-generated_ids, skip_special_tokens= True
-)
+generated_text = blip_processor.batch_decode(generated_ids, skip_special_tokens= True)
 generated_text = generated_text[ 0 ].strip()
 generated_text
 ```
 
 This gives us the following answer:
-```$1,000,000```
+
+```
+$1,000,000
+```
 
 $1,000,000 is highly specific! This shows more chat-like behavior from BLIP-2, which allows for some interesting conversations.
 
@@ -595,34 +576,24 @@ from IPython.display import HTML, display
 import ipywidgets as widgets
 
 def text_eventhandler(*args):
-question = args[ 0 ]["new"]
-if question:
-args[ 0 ]["owner"].value = ""
+    question = args[0]["new"]
+    if question:
+    args[0]["owner"].value = ""
 
-# Create prompt
-if not memory:
-prompt = " Question: " + question + " Answer:"
-else :
-template = "Question: {} Answer: {} ."
-prompt = " ".join(
-[
-template.format(memory[i][ 0 ], memory[i][ 1 ])
-for i in range(len(memory))
-]
-) + " Question: " + question + " Answer:"
+    # Create prompt
+    if not memory:
+        prompt = " Question: " + question + "Answer:"
+    else :
+        template = "Question: {} Answer: {} ."
+        prompt = " ".join([template.format(memory[i][0], memory[i][1]) for i in range(len(memory))]) + " Question: " + question + " Answer:"
 
 # Generate text
-inputs = blip_processor(image, text=prompt,
-return_tensors="pt")
+inputs = blip_processor(image, text=prompt, return_tensors="pt")
 inputs = inputs.to(device, torch.float16)
-generated_ids = model.generate(**inputs, max_new_tokens= 100 )
-generated_text = blip_processor.batch_decode(
-generated_ids,
-skip_special_tokens= True
-)
+generated_ids = model.generate(**inputs, max_new_tokens=100)
+generated_text = blip_processor.batch_decode(generated_ids,skip_special_tokens= True)
 
-generated_text = generated_text[ 0 ].strip().split("Question")
-[ 0 ]
+generated_text = generated_text[0].strip().split("Question")[0]
 
 # Update memory
 memory.append((question, generated_text))
@@ -643,11 +614,7 @@ memory = []
 
 # Display chat box
 display(
-widgets.VBox(
-children=[output, in_text],
-layout=widgets.Layout(display="inline-flex",
-flex_flow="column-reverse"),
-)
+    widgets.VBox(children=[output, in_text], layout=widgets.Layout(display="inline-flex", flex_flow="column-reverse"))
 )
 ```
 ![](/public/static/images/multimodal-llm/fig21-1.png)
