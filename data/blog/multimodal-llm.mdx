@@ -35,7 +35,6 @@ We will explore a number of different LLMs that have multimodal capabilities and
     - [Preprocessing text](#preprocessing-text)
     - [Use Case 1: Image Captioning](#use-case-1-image-captioning)
     - [Use Case 2: Multimodal Chat-Based Prompting](#use-case-2-multimodal-chat-based-prompting)
-- [Summary](#summary)
 - [References](#references)
 
 # Transformers for Vision
@@ -617,14 +616,6 @@ display(
 ![](/static/images/multimodal-llm/fig21-1.png)
 
 It seems that we can continue the conversation and ask a bunch of questions. Using this chat-based approach, we essentially created a chatbot that can reason about images!
-
-# Summary
-
-We explored various methods for making LLMs multimodal by bridging the gap between textual and visual representations. We started by discussing Transformers for vision, which are models that convert images into numerical representations. This was achieved through the use of image encoders and patch embeddings, which allow the model to process images at various scales.
-
-We then explored the creation of embedding models that can convert both images and text to numerical representations using CLIP. We saw how CLIP uses contrastive learning to align image and text embeddings in a shared space, allowing for tasks like zero-shot classification, clustering, and search. I also introduced OpenCLIP, an open source variant of CLIP that is easy to use for multimodal embedding tasks.
-
-Finally, we explored how text generation models could be made multimodal and dived into the BLIP-2 model. The core idea of these multimodal text generation models involves projecting visual features from input images to text embeddings that can be used by LLMs. We saw how this model could be used for image captioning and multimodal chat-based prompting, where both modalities are combined to generate responses. Overall, this post highlighted the power of multimodality in LLMs and demonstrated its applications in various areas such as image captioning, search, and chat-based prompting. 
 
 # References
 
