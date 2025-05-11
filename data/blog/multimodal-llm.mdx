@@ -8,15 +8,6 @@ summary: 'A brief overview about multimodal LLM for hands-on lab on Multimodal L
 images: ['/static/images/it4772e-20242/nlp.png']
 ---
 
-## Table of Contents
-- [Transformers for Vision](#transformers-for-vision)
-- [Multimodal Embedding Models](#multimodal-embedding-models)
-  - [CLIP: Connecting Text and Images](#clip-connecting-text-and-images)
-  - [How Can CLIP Generate Multimodal Embeddings?](#how-can-clip-generate-multimodal-embeddings)
-  - [OpenCLIP](#openclip)
-    - [USING SENTENCE-TRANSFORMERS TO LOAD CLIP](#using-sentence-transformers-to-load-clip)
-- [References](#references)
-
 > 💡 When you think about large language models (LLMs), multimodality might not be the first thing that comes to mind. After all, they are language models! But we can quickly see that models can be much more useful if they’re able to handle types of data other than text.
 
 It’s very useful, for example, if a language model is able to glance at a picture and answer questions about it. A model that is able to handle text and images (each of which is called a modality) is said to be multimodal, as we can see in Figure 1.
@@ -30,6 +21,22 @@ We have seen all manner of emerging behaviors rising from LLMs, from generalizat
 The ability to receive and reason with multimodal input might further increase and help emerge capabilities that were previously locked. In practice, language does not solely live in a vacuum. As an example, your body language, facial expressions, intonation, etc. are all methods of communication that enhance the spoken word. The same thing applies to LLMs; if we can enable them to reason about multimodal information, their capabilities might increase and we become able to deploy them to solve new kinds of problems.
 
 We will explore a number of different LLMs that have multimodal capabilities and what that means for practical use cases. We will start by exploring how images are converted to numerical representations using an adaptation of the original Transformer technique. Then, we will show how LLMs can be extended to include vision tasks using this Transformer.
+
+## Table of Contents
+- [Transformers for Vision](#transformers-for-vision)
+- [Multimodal Embedding Models](#multimodal-embedding-models)
+  - [CLIP: Connecting Text and Images](#clip-connecting-text-and-images)
+  - [How Can CLIP Generate Multimodal Embeddings?](#how-can-clip-generate-multimodal-embeddings)
+  - [OpenCLIP](#openclip)
+    - [USING SENTENCE-TRANSFORMERS TO LOAD CLIP](#using-sentence-transformers-to-load-clip)
+- [Making Text Generation Models Multimodal](#making-text-generation-models-multimodal)
+    - [BLIP-2: Bridging the Modality Gap](#blip-2-bridging-the-modality-gap)
+    - [Preprocessing images](#preprocessing-images)
+    - [Preprocessing text](#preprocessing-text)
+    - [Use Case 1: Image Captioning](#use-case-1-image-captioning)
+    - [Use Case 2: Multimodal Chat-Based Prompting](#use-case-2-multimodal-chat-based-prompting)
+- [Summary](#summary)
+- [References](#references)
 
 # Transformers for Vision
 
@@ -291,6 +298,369 @@ sim_matrix = util.cos_sim(
 image_embeddings, text_embeddings
 )
 ```
+
+# Making Text Generation Models Multimodal
+
+Traditionally, text generation models have been, as you might expect, models that interpret textual representations. Models like Llama 2 and ChatGPT excel at reasoning about textual information and responding with natural language. They are, however, limited to the modality they were trained in, namely text. As we have seen before with multimodal embedding models, the addition of vision can enhance the capabilities of a model. In the case of text generation models, we would like it to reason about certain input images. For example, we could give it an image of a pizza and ask it what ingredients it contains. You could show it a picture of the Eiffel Tower and ask when it was built or where it is located. This conversational ability is further illustrated in Figure 15.
+
+![](/public/static/images/multimodal-llm/fig15.png)
+> Figure 15. An example of a multimodal text generation model (BLIP-2) that can reason about input images.
+
+To bridge the gap between these two domains, attempts have been made to introduce a form of multimodality to existing models. One such method is called BLIP-2: Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation 2. BLIP-2 is an easy-to- use and modular technique that allows for introducing vision capabilities to existing language models.
+
+### BLIP-2: Bridging the Modality Gap
+
+Creating a multimodal language model from scratch requires significant computing power and data. We would have to use billions of images, text, and image-text pairs to create such a model. As you can imagine, this is not easily feasible!
+
+Instead of building the architecture from scratch, BLIP-2 bridges the vision- language gap by building a bridge, named the Querying Transformer (Q- Former), that connects a pretrained image encoder and a pretrained LLM.[^fn5] By leveraging pretrained models, BLIP-2 only needs to train the bridge without needing to train the image encoder and LLM from scratch. It makes great use of the technology and models that are already out there! This bridge is illustrated in Figure 16.
+
+![](/public/static/images/multimodal-llm/fig16.png)
+
+> Figure 16. The Querying Transformer is the bridge between vision (ViT) and text (LLM) that is the
+only trainable component of the pipeline.
+
+To connect the two pretrained models, the Q-Former mimics their architectures. It has two modules that share their attention layers: An Image Transformer to interact with the frozen Vision Transformer for feature extraction A Text Transformer that can interact with the LLM The Q-Former is trained in two stages, one for each modality, as illustrated in Figure 17. In step 1, image-document pairs are used to train the Q-Former to represent both images and text. These pairs are generally captions of images, as we have seen before when training CLIP. The images are fed to the frozen ViT to extract vision embeddings. These embeddings are used as the input of Q-Former’s ViT. The captions are used as the input of Q-Former’s Text Transformer.
+
+![](/public/static/images/multimodal-llm/fig17.png)
+> Figure 17. In step 1, representation learning is applied to learn representations for vision and language simultaneously. In step 2, these representations are converted to soft visual prompts to feed the LLM.
+
+With these inputs, the Q-Former is then trained on three tasks: Image-text contrastive learning This task attempts to align pairs of image and text embeddings such that they maximize their mutual information. Image-text matching A classification task to predict whether an image and text pair is positive (matched) or negative (unmatched). Image-grounded text generation Trains the model to generate text based on information extracted from the input image. These three objectives are jointly optimized to improve the visual representations that are extracted from the frozen ViT. In a way, we are trying to inject textual information into the embeddings of the frozen ViT so that we can use them in the LLM. This first step of BLIP-2 is illustrated in Figure 18.
+
+![](/public/static/images/multimodal-llm/fig18.png)
+> Figure 18. In step 1, the output of the frozen ViT is used together with its caption and trained on three contrastive-like tasks to learn visual-text representations.
+
+In step 2, the learnable embeddings derived from step 1 now contain visual information in the same dimensional space as the corresponding textual information. The learnable embeddings are then passed to the LLM. In a way, these embeddings serve as soft visual prompts that condition the LLM on the visual representations that were extracted by the Q-Former. There is also a fully connected linear layer in between them to make sure that the learnable embeddings have the same shape as the LLM expects. This second step of converting vision to language is represented in Figure 19.
+
+![](/public/static/images/multimodal-llm/fig19.png)
+> Figure 19. In step 2, the learned embeddings from the Q-Former are passed to the LLM through a projection layer. The projected embeddings serve as a soft visual prompt.
+
+When we put these steps together, they make it possible for the Q-Former to learn visual and textual representations in the same dimensional space, which can be used as a soft prompt to the LLM. As a result, the LLM will be given information about the image in a similar manner to the context you would provide an LLM when prompting. The full in-depth process is illustrated in Figure 20.
+
+![](/public/static/images/multimodal-llm/fig20.png)
+Figure 20. The full BLIP-2 procedure.
+
+Since BLIP-2, many other visual LLMs have been released that have similar processes, like LLaVA, a framework for making textual LLMs multimodal[^fn6] or Idefics 2, an efficient visual LLM based on the Mistral 7B LLM.[^fn7] Both visual LLMs, although having different architectures, connect pretrained CLIP-like visual encoders with textual LLMs. The goal of these architectures is to project visual features from the input images to language embeddings such that they can be used as the input for an LLM. Similar to the Q-Former, they attempt to bridge the gap between images and text.
+
+
+Preprocessing Multimodal Inputs Now that we know how BLIP-2 is created, there are a number of interesting use cases for such a model, not limited to captioning images, answering visual questions, and even performing prompting. Before we go through some use cases, let’s first load the model and explore how you can use it:
+
+```python
+from transformers import AutoProcessor, Blip2ForConditionalGeneration
+import torch
+
+# Load processor and main model
+blip_processor = AutoProcessor.from_pretrained("Salesforce/blip2-
+opt-2.7b")
+model = Blip2ForConditionalGeneration.from_pretrained(
+"Salesforce/blip2-opt-2.7b",
+torch_dtype=torch.float16
+)
+
+# Send the model to GPU to speed up inference
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model.to(device)
+```
+
+> **TIP:** Using `model.vision_model` and `model.language_model`, we can see which
+ViT and generative model are used, respectively, in the BLIP-2 model we loaded.
+
+
+We loaded two components that make up our full pipeline: a processor and a model. The processor can be compared to the tokenizer of language models. It converts unstructured input, such as images and text, to representations that the model generally expects. 
+
+### Preprocessing images
+
+Let’s start by exploring what the processor does to images. We start by loading the picture of a very wide image for illustration purposes:
+
+```python
+# Load image of a supercar
+car_path = "car.png"
+image = Image.open(urlopen(car_path)).convert("RGB")
+
+image
+```
+![](/public/static/images/multimodal-llm/fig20-1.png)
+
+The image has 520 × 492 pixels, which is generally an unusual format. So let’s see what our processor does to it:
+
+```python
+# Preprocess the image
+inputs = blip_processor(image, return_tensors="pt").to(device,
+torch.float16)
+inputs["pixel_values"].shape
+```
+
+This gives us the following shape:
+
+```
+torch.Size([1, 3, 224, 224])
+```
+
+The result is a 224 × 224-sized image. Quite a bit smaller than we initially had! This also means that all the original different shapes of the image will be processed into squares. So be careful inputting very wide or tall images as they might get distorted.
+
+### Preprocessing text
+
+Let’s continue this exploration of the processor with text instead. First, we can access the tokenizer used to tokenize the input text:
+
+```python
+blip_processor.tokenizer
+```
+
+This gives us the following output:
+
+```
+GPT2TokenizerFast(name_or_path='Salesforce/blip2-opt-2.7b',
+vocab_size=50265,
+model_max_length=1000000000000000019884624838656, is_fast=True,
+padding_side='right', truncation_side='right', special_tokens=
+{'bos_token': '</s>', 'eos_token': '</s>', 'unk_token': '</s>',
+'pad_token': '<pad>'}, clean_up_tokenization_spaces=True),
+added_tokens_decoder={
+1: AddedToken("<pad>", rstrip=False, lstrip=False,
+single_word=False, normalized=True, special=True),
+2: AddedToken("</s>", rstrip=False, lstrip=False,
+single_word=False, normalized=True, special=True),
+}
+```
+
+The BLIP-2 model here uses a GPT2Tokenizer. To explore how GPT2Tokenizer works, we can try it out with a small sentence. We start by converting the sentence to token IDs before converting them back to tokens:
+
+```python
+# Preprocess the text
+text = "Her vocalization was remarkably melodic"
+token_ids = blip_processor(image, text=text, return_tensors="pt")
+token_ids = token_ids.to(device, torch.float16)["input_ids"][ 0 ]
+
+# Convert input ids back to tokens
+tokens =
+blip_processor.tokenizer.convert_ids_to_tokens(token_ids)
+tokens
+```
+
+This gives us the following tokens:
+
+```
+['</s>', 'Her', 'Ġvocal', 'ization', 'Ġwas', 'Ġremarkably',
+'Ġmel', 'odic']
+```
+
+When we inspect the tokens, you might notice a strange symbol at the beginning of some tokens, namely, the Ġ symbol. This is actually supposed to be a space. However, an internal function takes characters in certain code points and moves them up by 256 to make them printable. As a result, the space (code point 32) becomes Ġ (code point 288).
+
+We will convert them to underscores for illustrative purposes:
+
+```python
+# Replace the space token with an underscore
+tokens = [token.replace("Ġ", "_") for token in tokens]
+tokens
+```
+
+This gives us a nicer output:
+
+```
+['</s>', 'Her', '_vocal', 'ization', '_was', '_remarkably',
+'_mel', 'odic']
+```
+
+The output shows that the underscore indicates the beginning of a word. That way, words that are made up of multiple tokens can be recognized.
+
+### Use Case 1: Image Captioning
+
+The most straightforward usage of a model like BLIP-2 is to create captions of images that you have in your data. You might be a store that wants to create descriptions of its clothing or perhaps you are a photographer that does not have the time to manually label the 1,000+ pictures of a wedding. The process of captioning an image closely follows the processing. An image is converted to pixel values that the model can read. These pixel values are passed to BLIP-2 to be converted into soft visual prompts that the LLM can use to decide on a proper caption. Let’s take the image of a supercar and use the processor to derive pixels in the expected shape:
+
+```python
+# Load an AI-generated image of a supercar
+image = Image.open(urlopen(car_path)).convert("RGB")
+
+# Convert an image into inputs and preprocess it
+inputs = blip_processor(image, return_tensors="pt").to(device,
+torch.float16)
+image
+```
+
+![](/public/static/images/multimodal-llm/fig20-2.png)
+
+The next step is converting the image into token IDs using the BLIP-2 model. After doing so, we can convert the IDs into text (the generated caption):
+
+```python
+# Generate image ids to be passed to the decoder (LLM)
+generated_ids = model.generate(**inputs, max_new_tokens= 20 )
+
+# Generate text from the image ids
+generated_text = blip_processor.batch_decode(
+generated_ids, skip_special_tokens= True
+)
+generated_text = generated_text[ 0 ].strip()
+generated_text
+```
+
+`generated_text` contains the caption:
+
+```
+an orange supercar driving on the road at sunset
+```
+
+This seems like a perfect description for this image! Image captioning is a great way to get to learn this model before stepping into more complex use cases. Try it out with a few images yourself and see where it performs well and where it performs poorly. Domain-specific images, like pictures of specific cartoon characters or imaginary creations, may fail as the model was trained on largely public data. Let’s end this use case with a fun example, namely an image from the Rorschach test, which is illustrated in Figure 21. It is part of an old psychological experiment that tests the individual’s perception of inkblots.[^fn8] What someone sees in such an inkblot supposedly tells you something about a person’s personality characteristics. It is quite a subjective test but that just makes it more fun!
+
+![](/public/static/images/multimodal-llm/fig21.png)
+> Figure 21. An image from the Rorschach test. What do you see in it?
+
+Let’s take the image illustrated in Figure 21 and use that as our input:
+
+```python
+# Load Rorschach image
+url =
+"https://upload.wikimedia.org/wikipedia/commons/7/70/Rorschach_bl
+ot_01.jpg"
+image = Image.open(urlopen(url)).convert("RGB")
+
+# Generate caption
+inputs = blip_processor(image, return_tensors="pt").to(device,
+torch.float16)
+generated_ids = model.generate(**inputs, max_new_tokens= 20 )
+generated_text = blip_processor.batch_decode(
+generated_ids, skip_special_tokens= True
+)
+generated_text = generated_text[ 0 ].strip()
+generated_text
+```
+
+As before, when we inspect the generated_text variable, we can take a look at the caption:
+
+```
+a black and white ink drawing of a bat
+```
+
+I can definitely see how the model would caption this image using such a description. Since this is a Rorschach test, what do you think it says about the model?
+
+### Use Case 2: Multimodal Chat-Based Prompting
+
+Although captioning is an important task, we can extend its use case even further. In the previous example, we showed going from one modality, vision (image), to another, text (caption). Instead of following this linear structure, we can try to present both modalities simultaneously by performing what is called visual question answering. In this particular use case, we give the model an image along with a question about that specific image for it to answer. The model needs to process both the image as well as the question at once. To demonstrate, let’s start with the picture of a car and ask BLIP-2 to describe the image. To do so, we first need to preprocess the image as we did a few times before:
+
+```python
+# Load an AI-generated image of a supercar
+image = Image.open(urlopen(car_path)).convert("RGB")
+```
+
+To perform our visual question answering we need to give BLIP-2 more than just the image, namely the prompt. Without it, the model would generate a caption as it did before. We will ask the model to describe the image we just processed:
+
+```python
+# Visual question answering
+
+prompt = "Question: Write down what you see in this picture. Answer:"
+
+# Process both the image and the prompt
+inputs = blip_processor(image, text=prompt,
+return_tensors="pt").to(device, torch.float16)
+
+# Generate text
+generated_ids = model.generate(**inputs, max_new_tokens= 30 )
+generated_text = blip_processor.batch_decode(
+generated_ids, skip_special_tokens= True
+)
+generated_text = generated_text[ 0 ].strip()
+generated_text
+```
+
+This gives us the following output:
+
+```
+A sports car driving on the road at sunset
+```
+
+It correctly describes the image. However, this is a rather simple example since our question is essentially asking the model to create a caption. Instead, we can ask follow-up questions in a chat-based manner. To do so, we can give the model our previous conversation, including its answer to our question. We then ask it a follow-up question:
+
+```python
+# Chat-like prompting
+prompt = "Question: Write down what you see in this picture. Answer: A sports car driving on the road at sunset. Question: What would it cost me to drive that car? Answer:"
+
+# Generate output
+inputs = blip_processor(image, text=prompt,
+return_tensors="pt").to(device, torch.float16)
+generated_ids = model.generate(**inputs, max_new_tokens= 30 )
+generated_text = blip_processor.batch_decode(
+generated_ids, skip_special_tokens= True
+)
+generated_text = generated_text[ 0 ].strip()
+generated_text
+```
+
+This gives us the following answer:
+```$1,000,000```
+
+$1,000,000 is highly specific! This shows more chat-like behavior from BLIP-2, which allows for some interesting conversations.
+
+Finally, we can make this process a bit smoother by creating an interactive chatbot using ipywidgets, an extension for Jupyter notebooks that allows us to make interactive buttons, input text, etc:
+
+```python
+from IPython.display import HTML, display
+import ipywidgets as widgets
+
+def text_eventhandler(*args):
+question = args[ 0 ]["new"]
+if question:
+args[ 0 ]["owner"].value = ""
+
+# Create prompt
+if not memory:
+prompt = " Question: " + question + " Answer:"
+else :
+template = "Question: {} Answer: {} ."
+prompt = " ".join(
+[
+template.format(memory[i][ 0 ], memory[i][ 1 ])
+for i in range(len(memory))
+]
+) + " Question: " + question + " Answer:"
+
+# Generate text
+inputs = blip_processor(image, text=prompt,
+return_tensors="pt")
+inputs = inputs.to(device, torch.float16)
+generated_ids = model.generate(**inputs, max_new_tokens= 100 )
+generated_text = blip_processor.batch_decode(
+generated_ids,
+skip_special_tokens= True
+)
+
+generated_text = generated_text[ 0 ].strip().split("Question")
+[ 0 ]
+
+# Update memory
+memory.append((question, generated_text))
+
+# Assign to output
+output.append_display_data(HTML("<b>USER:</b> " + question))
+output.append_display_data(HTML("<b>BLIP-2:</b> " +
+generated_text))
+output.append_display_data(HTML("<br>"))
+
+# Prepare widgets
+in_text = widgets.Text()
+
+in_text.continuous_update = **False**
+in_text.observe(text_eventhandler, "value")
+output = widgets.Output()
+memory = []
+
+# Display chat box
+display(
+widgets.VBox(
+children=[output, in_text],
+layout=widgets.Layout(display="inline-flex",
+flex_flow="column-reverse"),
+)
+)
+```
+![](/public/static/images/multimodal-llm/fig21-1.png)
+
+It seems that we can continue the conversation and ask a bunch of questions. Using this chat-based approach, we essentially created a chatbot that can reason about images!
+
+# Summary
+
+We explored various methods for making LLMs multimodal by bridging the gap between textual and visual representations. We started by discussing Transformers for vision, which are models that convert images into numerical representations. This was achieved through the use of image encoders and patch embeddings, which allow the model to process images at various scales.
+
+We then explored the creation of embedding models that can convert both images and text to numerical representations using CLIP. We saw how CLIP uses contrastive learning to align image and text embeddings in a shared space, allowing for tasks like zero-shot classification, clustering, and search. I also introduced OpenCLIP, an open source variant of CLIP that is easy to use for multimodal embedding tasks.
+
+Finally, we explored how text generation models could be made multimodal and dived into the BLIP-2 model. The core idea of these multimodal text generation models involves projecting visual features from input images to text embeddings that can be used by LLMs. We saw how this model could be used for image captioning and multimodal chat-based prompting, where both modalities are combined to generate responses. Overall, this post highlighted the power of multimodality in LLMs and demonstrated its applications in various areas such as image captioning, search, and chat-based prompting. 
 
 # References
 
