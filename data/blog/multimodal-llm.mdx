@@ -10,7 +10,7 @@ images: ['/static/images/it4772e-20242/nlp.png']
 
 When you think about large language models (LLMs), multimodality might not be the first thing that comes to mind. After all, they are language models! But we can quickly see that models can be much more useful if they’re able to handle types of data other than text. It’s very useful, for example, if a language model is able to glance at a picture and answer questions about it. A model that is able to handle text and images (each of which is called a modality) is said to be multimodal, as we can see in Figure 1.
 
-![Figure 1. Models that are able to deal with different types (or modalities) of data, such as images, audio, video, or sensors, are said to be multimodal. It’s possible for a model to accept a modality as input yet not be able to generate in that modality.](/public/static/images/multimodal-llm/fig1.png)
+![Figure 1. Models that are able to deal with different types (or modalities) of data, such as images, audio, video, or sensors, are said to be multimodal. It’s possible for a model to accept a modality as input yet not be able to generate in that modality.](/static/images/multimodal-llm/fig1.png)
 
 We have seen all manner of emerging behaviors rising from LLMs, from generalization capabilities and reasoning to arithmetic and linguistics. As models grow larger and smarter, so do their skill sets.[^fn1]
 
@@ -24,29 +24,29 @@ Throughout the chapters of this book, we have seen the success of using Transfor
 
 
 ![Figure 2. Both the original Transformer as well as the Vision Transformer take unstructured data,
-convert it to numerical representations, and finally use that for tasks like classification.](/public/static/images/multimodal-llm/fig2.png)
+convert it to numerical representations, and finally use that for tasks like classification.](/static/images/multimodal-llm/fig2.png)
 
 ![
-Figure 3. Text is passed to one or multiple encoders by first tokenizing it using a tokenizer.](/public/static/images/multimodal-llm/fig3.png)
+Figure 3. Text is passed to one or multiple encoders by first tokenizing it using a tokenizer.](/static/images/multimodal-llm/fig3.png)
 
 Since an image does not consist of words this tokenization process cannot be used for visual data. Instead, the authors of ViT came up with a method for tokenizing images into "words," which allowed them to use the original encoder structure. Imagine that you have an image of a cat. This image is represented by a number of pixels, let’s say 512 × 512 pixels. Each individual pixel does not convey much information but when you combine patches of pixels, you slowly start to see more information. ViT uses a principle much like that. Instead of splitting up text into tokens, it converts the original image into patches of images. In other words, it cuts the image into a number of pieces horizontally and vertically as illustrated in Figure 4.
 
-![Figure 4. The "tokenization" process for image input. It converts an image into patches of subimages.](/public/static/images/multimodal-llm/fig4.png)
+![Figure 4. The "tokenization" process for image input. It converts an image into patches of subimages.](/static/images/multimodal-llm/fig4.png)
 
 Just like we are converting text into tokens of text, we are converting an image into patches of images. The flattened input of image patches can be thought of as the tokens in a piece of text. However, unlike tokens, we cannot just assign each patch with an ID since these patches will rarely be found in other images, unlike the vocabulary of a text. Instead, the patches are linearly embedded to create numerical representations, namely embeddings. These can then be used as the input of a Transformer model. That way, the patches of images are treated the same way as tokens. The full process is illustrated in Figure 5. For illustrative purposes, the images in the examples were patched into 3 × 3 patches but the original implementation used 16 × 16 patches. After all, the paper is called "An Image is Worth 16x16 Words." What is so interesting about this approach is that the moment the embeddings are passed to the encoder, they are treated as if they were textual tokens. From that point forward, there is no difference in how a text or image trains. Due to these similarities, the ViT is often used to make all kinds of language models multimodal. One of the most straightforward ways to use it is during the training of embedding models.
 
-![Figure 5. The main algorithm behind ViT. After patching the images and linearly projecting them, the patch embeddings are passed to the encoder and treated as if they were textual tokens.](/public/static/images/multimodal-llm/fig5.png)
+![Figure 5. The main algorithm behind ViT. After patching the images and linearly projecting them, the patch embeddings are passed to the encoder and treated as if they were textual tokens.](/static/images/multimodal-llm/fig5.png)
 
 # Multimodal Embedding Models
 
 In previous chapters, we used embedding models to capture the semantic content of textual representations, such as papers and documents. We saw that we could use these embeddings or numerical representations to find similar documents, apply classification tasks, and even perform topic modeling. As we have seen many times before, embeddings often are an important driver behind LLM applications. They are an efficient method for capturing large-scale information and searching for the needle in the haystack of information. That said, we have looked at text-only embedding models thus far, which focus on generating embeddings for textual representations. Although embedding models exist for solely embedding imagery, we will look at embedding models that can capture both textual as well as visual representations. We illustrate this in Figure 6.
 
-![Figure 6. Multimodal embedding models can create embeddings for multiple modalities in the same vector space.](/public/static/images/multimodal-llm/fig6.png)
+![Figure 6. Multimodal embedding models can create embeddings for multiple modalities in the same vector space.](/static/images/multimodal-llm/fig6.png)
 
 An advantage is that this allows for comparing multimodal representations since the resulting embeddings lie in the same vector space (Figure 7). For instance, using such a multimodal embedding model, we can find images based on input text. What images would we find if we search for images similar to "pictures of a puppy"? Vice versa would also be possible. Which documents are best related to this question?
 
 
-![Figure 7. Despite having coming from different modalities, embeddings with similar meaning will be close to each other in vector space.](/public/static/images/multimodal-llm/fig7.png)
+![Figure 7. Despite having coming from different modalities, embeddings with similar meaning will be close to each other in vector space.](/static/images/multimodal-llm/fig7.png)
 
 There are a number of multimodal embedding models, but the most well- known and currently most-used model is Contrastive Language-Image Pre- training (CLIP).
 
@@ -61,17 +61,17 @@ CLIP is an embedding model that can compute embeddings of both images and texts.
 
 The procedure of CLIP is actually quite straightforward. Imagine that you have a dataset with millions of images alongside captions as we illustrate in Figure 8.
 
-![Figure 8. The type of data that is needed to train a multimodal embedding model.](/public/static/images/multimodal-llm/fig8.png)
+![Figure 8. The type of data that is needed to train a multimodal embedding model.](/static/images/multimodal-llm/fig8.png)
 
 This dataset can be used to create two representations for each pair, the image and its caption. To do so, CLIP uses a text encoder to embed text and an image encoder to embed images. As is shown in Figure 9, the result is an embedding for both the image and its corresponding caption.
 
-![Figure 9. In the first step of training CLIP, both images and text are embedded using an image and text encoder, respectively.](/public/static/images/multimodal-llm/fig9.png)
+![Figure 9. In the first step of training CLIP, both images and text are embedded using an image and text encoder, respectively.](/static/images/multimodal-llm/fig9.png)
 
 The pair of embeddings that are generated are compared through cosine similarity. As we saw in Chapter 4, cosine similarity is the cosine of the angle between vectors, which is calculated through the dot product of the embeddings and divided by the product of their lengths. When we start training, the similarity between the image embedding and text embedding will be low as they are not yet optimized to be within the same vector space. During training, we optimize for the similarity between the embeddings and want to maximize them for similar image/caption pairs and minimize them for dissimilar image/caption pairs (Figure 10). After calculating their similarity, the model is updated and the process starts again with new batches of data and updated representations (Figure 11). This method is called contrastive learning , and we will go in depth into its inner workings in Chapter 10 where we will create our own embedding model.
 
-![Figure 10. In the second step of training CLIP, the similarity between the sentence and image embedding is calculated using cosine similarity.](/public/static/images/multimodal-llm/fig10.png)
+![Figure 10. In the second step of training CLIP, the similarity between the sentence and image embedding is calculated using cosine similarity.](/static/images/multimodal-llm/fig10.png)
 
-![Figure 11. In the third step of training CLIP, the text and image encoders are updated to match what the intended similarity should be. This updates the embeddings such that they are closer in vector space if the inputs are similar.](/public/static/images/multimodal-llm/fig11.png)
+![Figure 11. In the third step of training CLIP, the text and image encoders are updated to match what the intended similarity should be. This updates the embeddings such that they are closer in vector space if the inputs are similar.](/static/images/multimodal-llm/fig11.png)
 
 Eventually, we expect the embedding of an image of a cat would be similar to the embedding of the phrase "a picture of a cat." As we will see in Chapter 10, to make sure the representations are as accurate as possible, negative examples of images and captions that are not related should also be included in the training process. Modeling similarity is not only knowing what makes things similar to one another, but also what makes them different and dissimilar.
 
@@ -95,7 +95,7 @@ image = Image.open(urlopen(puppy_path)).convert("RGB")
 caption = "a puppy playing in the snow"
 ```
 
-![Figure 12. An AI-generated image of a puppy playing in the snow.](/public/static/images/multimodal-llm/fig12.png)
+![Figure 12. An AI-generated image of a puppy playing in the snow.](/static/images/multimodal-llm/fig12.png)
 
 Since we have a caption for this image, we can use OpenCLIP to generate embeddings for both. To do so, we load in three models: A tokenizer for tokenizing the textual input A preprocessor to preprocess and resize the image The main model that converts the previous outputs to embeddings
 
@@ -196,7 +196,7 @@ plt.imshow(img)
 plt.axis("off")
 ```
 
-![Figure 13. The preprocessed input image by CLIP.](/public/static/images/multimodal-llm/fig13.png)
+![Figure 13. The preprocessed input image by CLIP.](/static/images/multimodal-llm/fig13.png)
 
 To convert this preprocessed image into embeddings, we can call the model as we did before and explore what shape it returns:
 
@@ -234,7 +234,7 @@ array([[0.33149648]], dtype=float32)
 
 We get a similarity score of 0.33, which is difficult to interpret considering we don’t know what the model considers a low versus a high similarity score. Instead, let’s extend the example with more images and captions as illustrated in Figure 14.
 
-![Figure 14. The similarity matrix between three images and three captions.](/public/static/images/multimodal-llm/fig14.png)
+![Figure 14. The similarity matrix between three images and three captions.](/static/images/multimodal-llm/fig14.png)
 
 It seems that a score of 0.33 is indeed high considering the similarities with other images are quite a bit lower.
  
@@ -262,27 +262,21 @@ image_embeddings, text_embeddings
 
 # References
 
-[^fn1]: Jason Wei et al. "Emergent abilities of large language models." *arXiv preprint
-arXiv:2206.07682* (2022).
+[^fn1]: Jason Wei, Yi Tay, Rishi Bommasani, et al. (2022). *Emergent abilities of large language models*. arXiv preprint [arXiv:2206.07682](https://arxiv.org/abs/2206.07682).
 
-[^fn2]: Alexey Dosovitskiy et al. "An image is worth 16x16 words: Transformers for image
-recognition at scale." *arXiv preprint arXiv:2010.1 1929* (2020).
+[^fn2]: Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, et al. (2020). *An image is worth 16x16 words: Transformers for image recognition at scale*. arXiv preprint [arXiv:2010.11929](https://arxiv.org/abs/2010.11929).
 
-[^fn3]: Alec Radford et al. "Learning transferable visual models from natural language supervision." *International Conference on Machine Learning*. PMLR, 2021.
+[^fn3]: Alec Radford, Jong Wook Kim, Chris Hallacy, et al. (2021). *Learning transferable visual models from natural language supervision*. In *Proceedings of the International Conference on Machine Learning (ICML)*. PMLR.
 
-[^fn4]: Robin Rombach et al. "High-resolution image synthesis with latent diffusion models."
-*Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition*, 2022.
+[^fn4]: Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Björn Ommer. (2022). *High-resolution image synthesis with latent diffusion models*. In *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*.
 
-[^fn5]: Junnan Li et al. "BLIP-2: Bootstrapping language-image pretraining with frozen image
-encoders and large language models." *International Conference on Machine Learning*. PMLR, 2023.
+[^fn5]: Junnan Li, Dongxu Li, Silvio Savarese, and Steven Hoi. (2023). *BLIP-2: Bootstrapping language-image pretraining with frozen image encoders and large language models*. In *Proceedings of the International Conference on Machine Learning (ICML)*. PMLR.
 
-[^fn6]: Haotian Liu et al. "Visual instruction tuning." *Advances in Neural Information Processing
-Systems* (2024).
+[^fn6]: Haotian Liu, Chunyuan Li, Qingyang Wu, and Yizhou Sun. (2024). *Visual instruction tuning*. In *Advances in Neural Information Processing Systems (NeurIPS)*.
 
-[^fn7]: Hugo Laurençon et al. "What matters when building vision-language models?" *arXiv preprint
-arXiv:2405.02246* (2024).
+[^fn7]: Hugo Laurençon, Louis Boursier, Renaud Marlet, and Matthieu Cord. (2024). *What matters when building vision-language models?* arXiv preprint [arXiv:2405.02246](https://arxiv.org/abs/2405.02246).
 
+[^fn8]: Roy Schafer. (1954). *Psychoanalytic Interpretation in Rorschach Testing: Theory and Application*. Grune & Stratton.
 
-[^fn8]: Roy Schafer. *Psychoanalytic Interpretation in Rorschach Testing: Theory and Application* (1954).
 
 
