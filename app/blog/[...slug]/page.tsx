@@ -4,14 +4,6 @@ import 'katex/dist/katex.css'
 import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/MDXComponents'
 import { MDXRemote } from 'next-mdx-remote/rsc'
-import path from 'path'
-import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
-import rehypeSlug from 'rehype-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeKatex from 'rehype-katex'
-import rehypeCitation from 'rehype-citation'
-import rehypePrismPlus from 'rehype-prism-plus'
 import { getAllPostSummaries, getRawPostBySlug } from '@/lib/content'
 import PostSimple from '@/layouts/PostSimple'
 import PostLayout from '@/layouts/PostLayout'
@@ -74,11 +66,8 @@ export async function generateMetadata({
   }
 }
 
-export const generateStaticParams = async () => {
-  const paths = getAllPostSummaries().map((p) => ({ slug: p.slug.split('/') }))
-
-  return paths
-}
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function Page({ params }: { params: { slug: string[] } }) {
   const slug = decodeURI(params.slug.join('/'))
@@ -112,22 +101,7 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
         prev={prev as unknown as { slug: string; title: string }}
       >
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <MDXRemote
-          source={post.body}
-          options={{
-            mdxOptions: {
-              remarkPlugins: [remarkGfm, remarkMath],
-              rehypePlugins: [
-                rehypeSlug,
-                rehypeAutolinkHeadings,
-                rehypeKatex,
-                [rehypeCitation, { path: path.join(process.cwd(), 'data') }],
-                [rehypePrismPlus, { defaultLanguage: 'js', ignoreMissing: true }],
-              ],
-            },
-          }}
-          components={components as any}
-        />
+        <MDXRemote source={post.body} components={components as any} />
       </Layout>
     </>
   )
