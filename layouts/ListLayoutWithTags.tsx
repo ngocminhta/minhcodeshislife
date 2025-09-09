@@ -4,8 +4,6 @@
 import { usePathname } from 'next/navigation'
 import { slug } from 'github-slugger'
 import { formatDate } from 'pliny/utils/formatDate'
-import { CoreContent } from 'pliny/utils/contentlayer'
-import type { Blog } from 'contentlayer/generated'
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
@@ -16,9 +14,15 @@ interface PaginationProps {
   currentPage: number
 }
 interface ListLayoutProps {
-  posts: CoreContent<Blog>[]
+  posts: Array<{ slug: string; date: string; title: string; summary: string; tags?: string[] }>
   title: string
-  initialDisplayPosts?: CoreContent<Blog>[]
+  initialDisplayPosts?: Array<{
+    slug: string
+    date: string
+    title: string
+    summary: string
+    tags?: string[]
+  }>
   pagination?: PaginationProps
 }
 
@@ -122,9 +126,9 @@ export default function ListLayoutWithTags({
           <div>
             <ul>
               {displayPosts.map((post) => {
-                const { path, date, title, summary, tags } = post
+                const { slug: postSlug, date, title: postTitle, summary, tags } = post
                 return (
-                  <li key={path} className="py-5">
+                  <li key={postSlug} className="py-5">
                     <article className="flex flex-col space-y-2 xl:space-y-0">
                       <dl>
                         <dt className="sr-only">Published on</dt>
@@ -135,12 +139,17 @@ export default function ListLayoutWithTags({
                       <div className="space-y-3">
                         <div>
                           <h2 className="text-2xl font-bold leading-8 tracking-tight">
-                            <Link href={`/${path}`} className="text-gray-900 dark:text-gray-100">
-                              {title}
+                            <Link
+                              href={`/blog/${postSlug}`}
+                              className="text-gray-900 dark:text-gray-100"
+                            >
+                              {postTitle}
                             </Link>
                           </h2>
                           <div className="flex flex-wrap">
-                            {tags?.map((tag) => <Tag key={tag} text={tag} />)}
+                            {tags?.map((tag) => (
+                              <Tag key={tag} text={tag} />
+                            ))}
                           </div>
                         </div>
                         <div className="prose max-w-none text-gray-500 dark:text-gray-400">

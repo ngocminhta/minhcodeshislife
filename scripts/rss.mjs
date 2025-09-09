@@ -4,8 +4,7 @@ import GithubSlugger from 'github-slugger'
 import { escape } from 'pliny/utils/htmlEscaper.js'
 import siteMetadata from '../data/siteMetadata.js'
 import tagData from '../app/tag-data.json' assert { type: 'json' }
-import { allBlogs } from '../.contentlayer/generated/index.mjs'
-import { sortPosts } from 'pliny/utils/contentlayer.js'
+import { getAllPostSummaries } from '../lib/content.ts'
 
 const generateRssItem = (config, post) => `
   <item>
@@ -35,17 +34,17 @@ const generateRss = (config, posts, page = 'feed.xml') => `
   </rss>
 `
 
-async function generateRSS(config, allBlogs, page = 'feed.xml') {
-  const publishPosts = allBlogs.filter((post) => post.draft !== true)
+async function generateRSS(config, postsInput, page = 'feed.xml') {
+  const publishPosts = postsInput
   // RSS for blog post
   if (publishPosts.length > 0) {
-    const rss = generateRss(config, sortPosts(publishPosts))
+    const rss = generateRss(config, publishPosts)
     writeFileSync(`./public/${page}`, rss)
   }
 
   if (publishPosts.length > 0) {
     for (const tag of Object.keys(tagData)) {
-      const filteredPosts = allBlogs.filter((post) =>
+      const filteredPosts = postsInput.filter((post) =>
         post.tags.map((t) => GithubSlugger.slug(t)).includes(tag)
       )
       const rss = generateRss(config, filteredPosts, `tags/${tag}/${page}`)
@@ -57,7 +56,7 @@ async function generateRSS(config, allBlogs, page = 'feed.xml') {
 }
 
 const rss = () => {
-  generateRSS(siteMetadata, allBlogs)
+  generateRSS(siteMetadata, getAllPostSummaries())
   console.log('RSS feed generated...')
 }
 export default rss

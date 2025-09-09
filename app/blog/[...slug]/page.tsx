@@ -3,10 +3,16 @@ import 'katex/dist/katex.css'
 
 import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/MDXComponents'
-import { MDXLayoutRenderer } from 'pliny/mdx-components'
-import { sortPosts, coreContent, allCoreContent } from 'pliny/utils/contentlayer'
-import { allBlogs, allAuthors } from 'contentlayer/generated'
-import type { Authors, Blog } from 'contentlayer/generated'
+import { MDXRemote } from 'next-mdx-remote/rsc'
+import path from 'path'
+import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeSlug from 'rehype-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeKatex from 'rehype-katex'
+import rehypeCitation from 'rehype-citation'
+import rehypePrismPlus from 'rehype-prism-plus'
+import { getAllPostSummaries, getRawPostBySlug } from '@/lib/content'
 import PostSimple from '@/layouts/PostSimple'
 import PostLayout from '@/layouts/PostLayout'
 import PostBanner from '@/layouts/PostBanner'
@@ -27,15 +33,9 @@ export async function generateMetadata({
   params: { slug: string[] }
 }): Promise<Metadata | undefined> {
   const slug = decodeURI(params.slug.join('/'))
-  const post = allBlogs.find((p) => p.slug === slug)
-  const authorList = post?.authors || ['default']
-  const authorDetails = authorList.map((author) => {
-    const authorResults = allAuthors.find((p) => p.slug === author)
-    return coreContent(authorResults as Authors)
-  })
-  if (!post) {
-    return
-  }
+  const post = getRawPostBySlug(slug)
+  const authorDetails: { name: string }[] = []
+  if (!post) return
 
   const publishedAt = new Date(post.date).toISOString()
   const modifiedAt = new Date(post.lastmod || post.date).toISOString()
@@ -75,38 +75,29 @@ export async function generateMetadata({
 }
 
 export const generateStaticParams = async () => {
-  const paths = allBlogs.map((p) => ({ slug: p.slug.split('/') }))
+  const paths = getAllPostSummaries().map((p) => ({ slug: p.slug.split('/') }))
 
   return paths
 }
 
 export default async function Page({ params }: { params: { slug: string[] } }) {
   const slug = decodeURI(params.slug.join('/'))
-  // Filter out drafts in production
-  const sortedCoreContents = allCoreContent(sortPosts(allBlogs))
-  const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)
-  if (postIndex === -1) {
-    return notFound()
+  const summaries = getAllPostSummaries()
+  const index = summaries.findIndex((p) => p.slug === slug)
+  if (index === -1) return notFound()
+  const prev = summaries[index + 1]
+  const next = summaries[index - 1]
+  const post = getRawPostBySlug(slug)
+  if (!post) return notFound()
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    datePublished: post.date,
+    dateModified: post.lastmod || post.date,
   }
 
-  const prev = sortedCoreContents[postIndex + 1]
-  const next = sortedCoreContents[postIndex - 1]
-  const post = allBlogs.find((p) => p.slug === slug) as Blog
-  const authorList = post?.authors || ['default']
-  const authorDetails = authorList.map((author) => {
-    const authorResults = allAuthors.find((p) => p.slug === author)
-    return coreContent(authorResults as Authors)
-  })
-  const mainContent = coreContent(post)
-  const jsonLd = post.structuredData
-  jsonLd['author'] = authorDetails.map((author) => {
-    return {
-      '@type': 'Person',
-      name: author.name,
-    }
-  })
-
-  const Layout = layouts[post.layout || defaultLayout]
+  const Layout = layouts[(post.layout as keyof typeof layouts) || defaultLayout]
 
   return (
     <>
@@ -114,8 +105,29 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
-        <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
+      <Layout
+        content={{ slug: post.slug, date: post.date, title: post.title, tags: post.tags }}
+        authorDetails={[]}
+        next={next as unknown as { slug: string; title: string }}
+        prev={prev as unknown as { slug: string; title: string }}
+      >
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <MDXRemote
+          source={post.body}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkGfm, remarkMath],
+              rehypePlugins: [
+                rehypeSlug,
+                rehypeAutolinkHeadings,
+                rehypeKatex,
+                [rehypeCitation, { path: path.join(process.cwd(), 'data') }],
+                [rehypePrismPlus, { defaultLanguage: 'js', ignoreMissing: true }],
+              ],
+            },
+          }}
+          components={components as any}
+        />
       </Layout>
     </>
   )
