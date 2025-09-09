@@ -4,7 +4,7 @@ const siteMetadata = {
   author: 'Minh N. Ta',
   headerTitle: 'Minh codes his life',
   description: 'A blog for everything about my life, my works and knowledge-sharing',
-  language: 'vi-VN',
+  language: 'en-US',
   theme: 'system', // system, dark or light
   siteUrl: 'https://blog.tnminh.com',
   siteRepo: 'https://github.com/ngocminhta/',
