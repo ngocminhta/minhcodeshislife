@@ -15,7 +15,7 @@ export default function MDXWithMath({ children }: MDXWithMathProps) {
     if (!containerRef.current) return
 
     const container = containerRef.current
-    
+
     // Find all math expressions with data-math attribute and render them with KaTeX
     const mathBlocks = container.querySelectorAll('.math-block[data-math]')
     mathBlocks.forEach((block) => {
@@ -53,9 +53,5 @@ export default function MDXWithMath({ children }: MDXWithMathProps) {
     })
   }, [children])
 
-  return (
-    <div ref={containerRef}>
-      {children}
-    </div>
-  )
+  return <div ref={containerRef}>{children}</div>
 }
