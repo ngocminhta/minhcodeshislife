@@ -19,20 +19,16 @@ Chúng ta đều biết LoRA được sử dụng như một phương pháp tố
 Để hiểu đơn giản, QLoRA = Quantization + LoRA, mà kĩ thuật quantization (lượng tử hóa) mình đã giới thiệu ở phần 1 của bài viết này rồi. Với sự có mặt của QLoRA, mình đã có thể fine-tune mô hình 7 tỷ, 13 tỷ và 33 tỷ tham số với 2 con RTX 3090. Đáng nói là mô hình 7 tỷ tham số chỉ chiếm 4-5GB/GPU, tức là ~10GB, hoàn toàn có thể training trên Google Colab.
 
 ## Cách lượng tử hóa trong QLoRA
-Sau khi xác định được kiểu dữ liệu (dtype) cần sử dụng, bước tiếp theo là áp dụng công thức để chuyển đổi từ dtype gốc (source dtype) sang dtype mà chúng ta muốn quantize (target dtype). Để đảm bảo rằng chúng ta có thể sử dụng toàn bộ giá trị của target dtype, chúng ta sẽ tỉ lệ hóa source dtype về khoảng target dtype bằng cách chuẩn hóa với giá trị tuyệt đối lớn nhất hiện có của source dtype. Ví dụ, quá trình quantize từ FP32 về INT8 với khoảng giá trị là $[-127,127]$ sẽ được thực hiện như sau:
+Sau khi xác định được kiểu dữ liệu (dtype) cần sử dụng, bước tiếp theo là áp dụng công thức để chuyển đổi từ dtype gốc (source dtype) sang dtype mà chúng ta muốn quantize (target dtype). Để đảm bảo rằng chúng ta có thể sử dụng toàn bộ giá trị của target dtype, chúng ta sẽ tỉ lệ hóa source dtype về khoảng target dtype bằng cách chuẩn hóa với giá trị tuyệt đối lớn nhất hiện có của source dtype. Ví dụ, quá trình quantize từ FP32 về INT8 với khoảng giá trị là <span className="math-inline" data-math="[-127,127]"></span> sẽ được thực hiện như sau:
 
-$$
-X^{\text{int8}} = \text{round}\left(\dfrac{127}{\text{absmax}\left(X^{\text{FP32}}\right)}X^{\text{FP32}} \right) = \text{round}\left(c^{\text{FP32}} \cdot X^{\text{FP32}} \right)
-$$
+<div className="math-block" data-math="X^{\text{int8}} = \text{round}\left(\dfrac{127}{\text{absmax}\left(X^{\text{FP32}}\right)}X^{\text{FP32}} \right) = \text{round}\left(c^{\text{FP32}} \cdot X^{\text{FP32}} \right)"></div>
 
-với $c$ là hằng số quantize, $\text{round}$ là phép làm tròn.
+với <span className="math-inline" data-math="c"></span> là hằng số quantize, <span className="math-inline" data-math="\text{round}"></span> là phép làm tròn.
 
-Ví dụ, ta có tensor $[0.1,0.2,0.4]$ ở dạng FP32 muốn quantize về INT8, thì hằng số quantize $c = \dfrac{127}{0.4} = 317.5$ và tensor mới ở dạng INT8 là $[32,64,127]$.
+Ví dụ, ta có tensor <span className="math-inline" data-math="[0.1,0.2,0.4]"></span> ở dạng FP32 muốn quantize về INT8, thì hằng số quantize <span className="math-inline" data-math="c = \dfrac{127}{0.4} = 317.5"></span> và tensor mới ở dạng INT8 là <span className="math-inline" data-math="[32,64,127]"></span>.
 
 Để đảo ngược từ target dtype về source dtype, ta có quá trình de-quantize:
-$$
-\text{dequant}\left(c^{\text{FP32}} \cdot X^{\text{FP32}} \right) = \dfrac{X^{\text{int8}}}{c^{\text{FP32}}} = X^{\text{FP32}}
-$$
+<div className="math-block" data-math="\text{dequant}\left(c^{\text{FP32}} \cdot X^{\text{FP32}} \right) = \dfrac{X^{\text{int8}}}{c^{\text{FP32}}} = X^{\text{FP32}}"></div>
 
 # QLoRA đã làm gì để đạt được hiệu quả đó?
 
@@ -53,18 +49,18 @@ Trong một tensor, có thể xảy ra hiện tượng outlier, tức là có m�
 
 ![](/static/images/from-lora-to-longlora/outlier.png)
 
-QLoRA áp dụng kỹ thuật Quantile Quantization trong quá trình huấn luyện. Tuy nhiên, việc xác định quantile phù hợp cho từng tensor weight đòi hỏi nhiều thời gian vì tính khó khăn trong quá trình này. Mặc dù có các thuật toán xấp xỉ quantile nhanh, nhưng chúng không phản ánh tốt sự xuất hiện của outlier. Để giải quyết vấn đề này, QLoRA đã nhận ra rằng nếu tất cả các tensor tuân theo cùng một loại phân phối cố định, chúng ta chỉ cần xác định các quantiles một lần duy nhất và áp dụng chúng cho toàn bộ các tensor weight thay vì phải tìm quantiles phù hợp cho từng tensor riêng lẻ. QLoRA đã tiến hành các thí nghiệm để chứng minh rằng đa số các tensor weights của pre-trained LLM tuân theo phân phối chuẩn với mean 0 và standard deviation $\sigma$. Do đó, QLoRA đã điều chỉnh toàn bộ các weights về một phân phối cố định bằng cách chia cho $\sigma$, đảm bảo rằng phân phối sẽ nằm trong khoảng giá trị của target dtype.
+QLoRA áp dụng kỹ thuật Quantile Quantization trong quá trình huấn luyện. Tuy nhiên, việc xác định quantile phù hợp cho từng tensor weight đòi hỏi nhiều thời gian vì tính khó khăn trong quá trình này. Mặc dù có các thuật toán xấp xỉ quantile nhanh, nhưng chúng không phản ánh tốt sự xuất hiện của outlier. Để giải quyết vấn đề này, QLoRA đã nhận ra rằng nếu tất cả các tensor tuân theo cùng một loại phân phối cố định, chúng ta chỉ cần xác định các quantiles một lần duy nhất và áp dụng chúng cho toàn bộ các tensor weight thay vì phải tìm quantiles phù hợp cho từng tensor riêng lẻ. QLoRA đã tiến hành các thí nghiệm để chứng minh rằng đa số các tensor weights của pre-trained LLM tuân theo phân phối chuẩn với mean 0 và standard deviation <span className="math-inline" data-math="\sigma"></span>. Do đó, QLoRA đã điều chỉnh toàn bộ các weights về một phân phối cố định bằng cách chia cho <span className="math-inline" data-math="\sigma"></span>, đảm bảo rằng phân phối sẽ nằm trong khoảng giá trị của target dtype.
 
-QLoRA muốn quantize weights của mạng nơ-ron về một khoảng giá trị cụ thể là $[-1, 1]$ cho target dtype. Tuy nhiên, việc sử dụng các phương pháp quantile thông thường sẽ không thể biểu diễn chính xác số 0 (vị trí trung tâm, Q2). Để giải quyết vấn đề này, số quantiles $q_i$ được chia thành hai phần: $2^{k-1}$ cho phần âm kèm số 0 và $2^{k-1} + 1$ cho phần dương kèm số 0. Sau đó, hai phần này được kết hợp lại và một số 0 được loại bỏ (do số 0 được tính hai lần). Đây là cách NF4 được tạo ra.
+QLoRA muốn quantize weights của mạng nơ-ron về một khoảng giá trị cụ thể là <span className="math-inline" data-math="[-1, 1]"></span> cho target dtype. Tuy nhiên, việc sử dụng các phương pháp quantile thông thường sẽ không thể biểu diễn chính xác số 0 (vị trí trung tâm, Q2). Để giải quyết vấn đề này, số quantiles <span className="math-inline" data-math="q_i"></span> được chia thành hai phần: <span className="math-inline" data-math="2^{k-1}"></span> cho phần âm kèm số 0 và <span className="math-inline" data-math="2^{k-1} + 1"></span> cho phần dương kèm số 0. Sau đó, hai phần này được kết hợp lại và một số 0 được loại bỏ (do số 0 được tính hai lần). Đây là cách NF4 được tạo ra.
 
 Túm cái váy lại, NF4 có các đặc điểm sau:
 
 * Sử dụng 4 bits biểu diễn.
-* Nằm trong khoảng $[−1,1]$.
+* Nằm trong khoảng <span className="math-inline" data-math="[−1,1]"></span>.
 * Bất đối xứng, có sự biểu diễn cho giá trị 0.
 * Được tạo ra để áp dụng cho tensor tuân theo phân phối chuẩn mean 0 và std 1.
 
-Để thực hiện quantize tensor weight về NF4, trước tiên ta phải scale tensor weight về khoảng $[−1,1]$, sau đó ta thực hiện quantize như bình thường. Lưu ý, bước này sẽ bao gồm áp dụng cả Chunk Quantize.
+Để thực hiện quantize tensor weight về NF4, trước tiên ta phải scale tensor weight về khoảng <span className="math-inline" data-math="[−1,1]"></span>, sau đó ta thực hiện quantize như bình thường. Lưu ý, bước này sẽ bao gồm áp dụng cả Chunk Quantize.
 
 ### Double Quantization
 
@@ -78,15 +74,11 @@ Khi huấn luyện mô hình trên GPU, việc gặp lỗi "Out of Memory" (OOM)
 
 QLoRA hiện tại chỉ hỗ trợ cho Linear layer (vì LoRA cũng chỉ hỗ trợ cho Linear). Một layer sẽ gồm 2 thành phần: Thành phần pretrained (freeze) và thành phần LoRA (train). Quá trình tính toán output của layer Linear có LoRA đó như sau:
 
-$$
-Y^{BF16} = X^{BF16} \text{doubleDequant}(c_{1}^{FP32},c_{2}^{k-bit},W^{NF4}) + X^{BF16} L_1^{BF16} L_2^{BF16}
-$$
+<div className="math-block" data-math="Y^{BF16} = X^{BF16} \text{doubleDequant}(c_{1}^{FP32},c_{2}^{k-bit},W^{NF4}) + X^{BF16} L_1^{BF16} L_2^{BF16}"></div>
 
-với $\text{doubleDequant}()$ như sau:
+với <span className="math-inline" data-math="\text{doubleDequant}()"></span> như sau:
 
-$$
-\text{doubleDequant}(c_{1}^{FP32},c_{2}^{k-bit},W^{NF4}) = \text{dequant}(\text{dequant}(c_{1}^{FP32},c_{2}^{k-bit}),W^{NF4}) = W^{BF16}
-$$
+<div className="math-block" data-math="\text{doubleDequant}(c_{1}^{FP32},c_{2}^{k-bit},W^{NF4}) = \text{dequant}(\text{dequant}(c_{1}^{FP32},c_{2}^{k-bit}),W^{NF4}) = W^{BF16}"></div>
 
 Trong một Linear layer có LoRA, thành phần được pretrained được đóng băng và không cập nhật gradient, trong khi thành phần LoRA được huấn luyện. Trọng số của thành phần pretrained được quantize về NF4. Trong quá trình tính toán output, thành phần pretrained được dequantize từ NF4 về BF16, sau đó được kết hợp với thành phần LoRA ở dạng BF16. Khi tính toán hoàn tất, thành phần pretrained lại được quantize về NF4. Nhờ vậy, QLoRA giúp model vừa với VRAM để huấn luyện, mặc dù không tăng tốc độ của model (do cần dequantize thành phần cần tính toán về BF16 tại mỗi layer).
 

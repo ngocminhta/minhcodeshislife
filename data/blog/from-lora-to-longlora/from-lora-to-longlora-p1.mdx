@@ -25,8 +25,7 @@ LoRA (**Lo**w-**R**ank **A**daptation of Large Language Models) không thêm lay
 # Định nghĩa rank trong low-rank
 Định nghĩa về rank của ma trận là số cột độc lập tuyến tính tối đa của ma trận. Dưới đây, chúng ta thể hiện hiển thị ma trận 2x3 và ma trận chuyển vị của nó với chiều 3x2. Lưu ý rằng hai hàng của ma trận hoàn toàn đối nhau. Chúng không độc lập tuyến tính. Hàng độc lập tuyến tính duy nhất là hàng đầu tiên. Vì vậy, cấp của V là 1. Tương tự như vậy, cấp chuyển vị của nó cũng là 1.
 
-$$
-V = \begin{bmatrix}
+<div className="math-block" data-math="V = \begin{bmatrix}
 1 & 2 & 1 \\
 -1 & -2 & -1
 \end{bmatrix} \ ; \quad
@@ -34,8 +33,7 @@ V^{T} = \begin{bmatrix}
 1 & -1 \\
 2 & -2 \\
 1 & -1
-\end{bmatrix}
-$$
+\end{bmatrix}"></div>
 
 Các hàng hoặc cột bổ sung không có độc lập tuyến tính và có thể được xây dựng lại bởi các hàng hoặc cột khác. Với thuộc tính này, mặc dù ma trận có thể rất lớn nhưng thông tin thực sự của nó chỉ nằm trên các hàng hoặc cột độc lập.
 
@@ -43,12 +41,12 @@ Các hàng hoặc cột bổ sung không có độc lập tuyến tính và có 
 
 ![Quá trình cập nhật một layer của model trong fine-tuning](/static/images/from-lora-to-longlora/lora-finetune.png)
 
-Pre-trained weights $W$ của model sẽ biến thành updated weights $W'$ dựa trên giá trị weight cần thay đổi $\Delta W$ thu được từ quá trình back propagation. Và ở iteration tiếp theo, $W'$ lại được update với một $\Delta W$ khác.
+Pre-trained weights <span className="math-inline" data-math="W"></span> của model sẽ biến thành updated weights <span className="math-inline" data-math="W'"></span> dựa trên giá trị weight cần thay đổi <span className="math-inline" data-math="\Delta W"></span> thu được từ quá trình back propagation. Và ở iteration tiếp theo, <span className="math-inline" data-math="W'"></span> lại được update với một <span className="math-inline" data-math="\Delta W"></span> khác.
 
 Quá trình forward sau mỗi iteration như sau:
-* Iteration 0: $y = Wx$
-* Iteration 1: $y = W'x = (W + \Delta W)x$
-* Iteration 2: $y = W''x = (W + \Delta W)x = (W' + \Delta W')x = (W + \Delta W + \Delta W')x$
+* Iteration 0: <span className="math-inline" data-math="y = Wx"></span>
+* Iteration 1: <span className="math-inline" data-math="y = W'x = (W + \Delta W)x"></span>
+* Iteration 2: <span className="math-inline" data-math="y = W''x = (W + \Delta W)x = (W' + \Delta W')x = (W + \Delta W + \Delta W')x"></span>
 
 ![](/static/images/from-lora-to-longlora/update-w.png)
 
@@ -56,19 +54,17 @@ Quá trình forward sau mỗi iteration như sau:
 
 Mục đích của LoRA là tìm cách biểu diễn ma trận $\Delta W$ thành một dạng biểu diễn nhẹ hơn. Năm 2020, có một paper nói rằng những mô hình ngôn ngữ pre-trained có intrinsic dimension (hay intrinsic rank) cực kì thấp, tức là, model này có thể được biểu diễn sử dụng số chiều ít hơn rất nhiều so với số chiều gốc của model, mà vẫn giữ được performance khi đem đi fine-tune.
 
-Tận dụng ý tưởng này, nhóm tác giả của LoRA cũng cho rằng, $\Delta W$ cũng có thể được biểu diễn với số chiều ít hơn rất nhiều số chiều gốc của $\Delta W$. LoRA chọn sử dụng Matrix decomposition để biểu diễn ma trận $\Delta W$ bằng tích của các ma trận con với độ nặng tính toán thấp hơn việc tính trên ma trận gốc. Có rất nhiều phương pháp Matrix decomposition (LU decomposition, Singular Value Decomposition, ...), và LoRA chọn sử dụng phương pháp Neural Network.
+Tận dụng ý tưởng này, nhóm tác giả của LoRA cũng cho rằng, <span className="math-inline" data-math="\Delta W"></span> cũng có thể được biểu diễn với số chiều ít hơn rất nhiều số chiều gốc của <span className="math-inline" data-math="\Delta W"></span>. LoRA chọn sử dụng Matrix decomposition để biểu diễn ma trận <span className="math-inline" data-math="\Delta W"></span> bằng tích của các ma trận con với độ nặng tính toán thấp hơn việc tính trên ma trận gốc. Có rất nhiều phương pháp Matrix decomposition (LU decomposition, Singular Value Decomposition, ...), và LoRA chọn sử dụng phương pháp Neural Network.
 
-LoRA phân rã $\Delta W$ thành 2 ma trận con $A$ và $B$ với rank thấp hơn rất nhiều so với ma trận ban đầu. Cụ thể, $\Delta W = BA$ với $\Delta W \in \mathrm{R}^{d \times k}, B \in \mathrm{R}^{d \times r}, A \in \mathrm{R}^{r \times k}$ và số rank $r \ll \min (d,k)$. Lúc này, output của layer đó sẽ trở thành
+LoRA phân rã <span className="math-inline" data-math="\Delta W"></span> thành 2 ma trận con <span className="math-inline" data-math="A"></span> và <span className="math-inline" data-math="B"></span> với rank thấp hơn rất nhiều so với ma trận ban đầu. Cụ thể, <span className="math-inline" data-math="\Delta W = BA"></span> với <span className="math-inline" data-math="\Delta W \in \mathrm{R}^{d \times k}, B \in \mathrm{R}^{d \times r}, A \in \mathrm{R}^{r \times k}"></span> và số rank <span className="math-inline" data-math="r \ll \min (d,k)"></span>. Lúc này, output của layer đó sẽ trở thành
 
-$$
-y = W_{0}x + \Delta Wx = W_{0}x + BAx
-$$
+<div className="math-block" data-math="y = W_{0}x + \Delta Wx = W_{0}x + BAx"></div>
 
-Ma trận A được khởi tạo theo Gaussian initialization, còn B thì được khởi tạo là ma trận 0, nên $\Delta W = BA$ có giá trị bằng 0 khi bắt đầu training. Quá trình training sẽ tối ưu đê tính được 2 ma trận cần tìm.
+Ma trận A được khởi tạo theo Gaussian initialization, còn B thì được khởi tạo là ma trận 0, nên <span className="math-inline" data-math="\Delta W = BA"></span> có giá trị bằng 0 khi bắt đầu training. Quá trình training sẽ tối ưu đê tính được 2 ma trận cần tìm.
 
-Vậy tại sao việc phân tách này lại làm khối lượng tính toán nhẹ đi? Giả sử ta chọn $A = B = 100, r = 4$. Khi đó, ta có số phần tử của ma trận $\Delta W$ là $100 \times 100 = 10000$, còn số phân tử sau phân rã là $100 \times 4 + 100 \times 4 = 800$, tức là khối lượng được giảm đi 12.5 lần.
+Vậy tại sao việc phân tách này lại làm khối lượng tính toán nhẹ đi? Giả sử ta chọn <span className="math-inline" data-math="A = B = 100, r = 4"></span>. Khi đó, ta có số phần tử của ma trận <span className="math-inline" data-math="\Delta W"></span> là <span className="math-inline" data-math="100 \times 100 = 10000"></span>, còn số phân tử sau phân rã là <span className="math-inline" data-math="100 \times 4 + 100 \times 4 = 800"></span>, tức là khối lượng được giảm đi 12.5 lần.
 
-Để có thể phân tách được một layer Linear, LoRA thêm vào Linear layer đó 2 lớp Linear nữa, mỗi lớp Linear đại diện cho ma trận $A$ và $B$. Lúc này nó giống như việc training một NN bình thường thôi. Chú ý là, hiện tại LoRA mới chỉ hỗ trợ phân tách weight của layer Linear, và chưa hỗ trợ cho những layer khác.
+Để có thể phân tách được một layer Linear, LoRA thêm vào Linear layer đó 2 lớp Linear nữa, mỗi lớp Linear đại diện cho ma trận <span className="math-inline" data-math="A"></span> và <span className="math-inline" data-math="B"></span>. Lúc này nó giống như việc training một NN bình thường thôi. Chú ý là, hiện tại LoRA mới chỉ hỗ trợ phân tách weight của layer Linear, và chưa hỗ trợ cho những layer khác.
 
 ![](/static/images/from-lora-to-longlora/decompose.png)
 

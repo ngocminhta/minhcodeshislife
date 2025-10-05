@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { processMdxContent } from './mdx-processor'
 
 export type RawPost = {
   slug: string

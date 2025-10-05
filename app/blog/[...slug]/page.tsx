@@ -3,6 +3,7 @@ import 'katex/dist/katex.css'
 
 import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/MDXComponents'
+import MDXWithMath from '@/components/MDXWithMath'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getAllPostSummaries, getRawPostBySlug } from '@/lib/content'
 import PostSimple from '@/layouts/PostSimple'
@@ -100,8 +101,10 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
         next={next as unknown as { slug: string; title: string }}
         prev={prev as unknown as { slug: string; title: string }}
       >
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <MDXRemote source={post.body} components={components as any} />
+        <MDXWithMath>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <MDXRemote source={post.body} components={components as any} />
+        </MDXWithMath>
       </Layout>
     </>
   )

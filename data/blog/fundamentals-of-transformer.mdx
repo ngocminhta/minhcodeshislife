@@ -48,19 +48,11 @@ Phương pháp của tác giả đề xuất không gặp những hạn chế m�
 
 Cụ thể, tại vị trí chẵn, tác giả sử dụng hàm sin, và với vị trí lẽ tác giả sử dụng hàm cos để tính giá trị tại chiều đó.
 
-$$
-p_t^i = f(t)^i = 
-\begin{cases}
-   sin(w_{k}*t) & \text{if } i=2k \\
-   cos(w_{k}*t) & \text{if } i=2k+1
-\end{cases}
-$$
+<div className="math-block" data-math="p_t^i = f(t)^i = \sin(w_k \cdot t)"></div>
 
 Trong đó,
 
-$$
-w_{k} = \dfrac{1}{10000^{2k/d}}
-$$
+<div className="math-block" data-math="w_{k} = \dfrac{1}{10000^{2k/d}}"></div>
 
 Trong hình dưới này, mình minh họa cho cách tính position encoding của tác giả. Giả sử chúng ta có word embedding có 6 chiều, thì position encoding cũng có tương ứng là 6 chiều. Mỗi dòng tương ứng với một từ. Giá trị của các vector tại mỗi vị trí được tính toán theo công thức ở hình dưới. 
 
@@ -151,9 +143,7 @@ Loss function thì tất nhiên là cross-entropy mà thôi, giống như ở c�
 ### Optimizer
 Để huấn luyện mô hình transformer, các bạn vẫn sử dụng Adam, tuy nhiên, learning rate cần phải được điều chỉnh trong suốt quá trình học theo công thức sau
 
-$$
-lr\_rate=d^{-0.5}_{d\_model}*min(step\_num^{-0.5}, step\_num*warmup\_steps^{-1.5})
-$$
+<div className="math-block" data-math="\text{lr\_rate} = d_{\text{model}}^{-0.5} \cdot \min(\text{step\_num}^{-0.5}, \text{step\_num} \cdot \text{warmup\_steps}^{-1.5})"></div>
 
 ![](/static/images/fundamentals-of-transformer/opt.png)
 

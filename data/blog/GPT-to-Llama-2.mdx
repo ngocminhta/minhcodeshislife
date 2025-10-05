@@ -91,9 +91,7 @@ Một vài lưu ý về mặt kĩ thuật mình có note lại như sau:
 
 * **Huấn luyện với ranking loss**: Họ sử dụng ranking loss và tham số margin để cải thiện hiệu suất học của mô hình với các mức độ khác nhau của điểm số.
 
-$$
-\mathcal{L}_{\text{ranking}} = -\log(\sigma(r_{\theta}(x,y_{c}) - r_{\theta}(x,y_{r} - m(r)))
-$$
+<div className="math-block" data-math="\mathcal{L}_{\text{ranking}} = -\log(\sigma(r_{\theta}(x,y_{c}) - r_{\theta}(x,y_{r}) - m(r)))"></div>
 
 * **Đánh giá so sánh với GPT-4**: Tác giả đã đánh giá mô hình của họ với GPT-4 bằng cách sử dụng zero-shot prompt "Choose the best answer between A and B" với A và B là hai câu trả lời tương ứng của mô hình. Kết quả cho thấy mô hình reward model của họ vượt trội hơn so với GPT-4, mặc dù chỉ được huấn luyện trên các tập dữ liệu công khai.
 
